@@ -155,19 +155,13 @@ This keeps the main lab documentation readable while still preserving the suppor
 
 ## Troubleshooting Records
 
-Troubleshooting records are stored separately in the [`troubleshooting/`](../troubleshooting/) folder so build documentation and fault-finding evidence stay clear.
+Troubleshooting records are stored separately in the `troubleshooting/` folder so build documentation and fault-finding notes stay clear.
 
-Each troubleshooting note follows a consistent structure: discovery, actions, and resolution. This keeps the records easy to scan while still showing the checks, commands, screenshots, and configuration changes used to confirm each fix.
+Current records are listed in [`troubleshooting-records.md`](../troubleshooting/troubleshooting-records.md). Each individual record documents the issue, the checks performed, and the confirmed resolution.
 
-Current troubleshooting records include DNS IPv6 conflict handling and Windows client firewall ping behaviour. The full troubleshooting index is available here:
-
-```text
-troubleshooting/README.md
-```
-
-This keeps ADBox focused on the technical administration side of the work: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, ticket forms, user-facing support records, and service desk workflow will be handled separately in the planned [N3 ticketing lab](https://github.com/erwinmagielda/n3).
+This keeps ADBox focused on technical administration work: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, ticket forms, user-facing support records, and service desk workflow will be handled separately in the planned [N3 ticketing lab](https://github.com/erwinmagielda/n3).
 
 
 ## Next Stage
 
-The next stage documents the working lab environment: physical host layout, VBox network mode, IP addressing, DNS configuration, and adapter settings used before building the Domain Controller.
+The next stage documents the working lab environment: physical host layout, VirtualBox network mode, IP addressing, DNS configuration, and adapter settings used before building the Domain Controller.
