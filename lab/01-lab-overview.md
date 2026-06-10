@@ -2,7 +2,7 @@
 
 ADBox is a Windows identity and support administration lab for practising Active Directory-based user, device, policy, and remote support workflows.
 
-The lab is built around virtualised Windows infrastructure using Oracle VirtualBox, Windows Server, and Active Directory. Around that foundation, it covers Domain Controller (DC) promotion, Domain Name System (DNS), Dynamic Host Configuration Protocol (DHCP), Internet Protocol version 4 (IPv4), Transmission Control Protocol/Internet Protocol (TCP/IP), Remote Desktop Protocol (RDP), and the supporting services used by Windows domain environments.
+The lab is built around virtualised Windows infrastructure using Oracle VirtualBox (VBox), Windows Server, and Active Directory. Around that foundation, it covers Domain Controller (DC) promotion, Domain Name System (DNS), Dynamic Host Configuration Protocol (DHCP), Internet Protocol version 4 (IPv4), Transmission Control Protocol/Internet Protocol (TCP/IP), Remote Desktop Protocol (RDP), and the supporting services used by Windows domain environments.
 
 ADBox then applies those systems to practical support administration: user accounts, security groups, Organisational Units (OUs), Group Policy (GP), workstation administration, printer mapping, account recovery, troubleshooting, and PowerShell administration.
 
@@ -18,7 +18,7 @@ Each stage records the configuration, validation steps, issues encountered, and 
 
 ## Lab Topology
 
-The lab runs across multiple physical laptops using VirtualBox virtual machines connected through the same home Wi-Fi network. `AD-SRV01` provides the domain and DNS services for `adbox.local`, while the Windows 10 clients are used to test domain join, user logon, GP, remote access, and workstation administration.
+The lab runs across multiple physical laptops using VBox virtual machines connected through the same home Wi-Fi network. `AD-SRV01` provides the domain and DNS services for `adbox.local`, while the Windows 10 clients are used to test domain join, user logon, GP, remote access, and workstation administration.
 
 ```text
 Home Wi-Fi / EE Router
@@ -76,7 +76,7 @@ username@adbox.local
 
 ## Network Design
 
-The lab uses VirtualBox Bridged Adapter mode so the virtual machines appear as separate devices on the same home network. This allows the server and clients to communicate across the shared Wi-Fi network while still running as isolated virtual machines on different physical laptops.
+The lab uses VBox Bridged Adapter mode so the virtual machines appear as separate devices on the same home network. This allows the server and clients to communicate across the shared Wi-Fi network while still running as isolated virtual machines on different physical laptops.
 
 ```text
 Home Wi-Fi / EE Router
@@ -123,7 +123,7 @@ The lab is documented as a step-by-step support workflow.
 
 | Step | Stage | Evidence |
 |---|---|---|
-| 1 | Server installation | Windows Server installed in VirtualBox. |
+| 1 | Server installation | Windows Server installed in VBox. |
 | 2 | Server preparation | `AD-SRV01` renamed and assigned a static IP address. |
 | 3 | Domain Controller promotion | Active Directory Domain Services (AD DS) installed and `AD-SRV01` promoted to a Domain Controller (DC). |
 | 4 | Domain validation | `adbox.local` domain and Domain Name System (DNS) records confirmed. |
@@ -153,17 +153,21 @@ The repository is organised so the build notes, troubleshooting records, scripts
 This keeps the main lab documentation readable while still preserving the supporting evidence. Build steps stay in `lab/`, fault-finding stays in `troubleshooting/`, reusable administration work goes into `scripts/`, and screenshots provide visual proof of configuration and validation.
 
 
-## Troubleshooting Notes
+## Troubleshooting Records
 
-Troubleshooting notes use three sections:
+Troubleshooting records are stored separately in the [`troubleshooting/`](../troubleshooting/) folder so build documentation and fault-finding evidence stay clear.
 
-- **Discovery**  
-  Records what was observed, what failed, and what evidence showed the issue existed.
+Each troubleshooting note follows a consistent structure: discovery, actions, and resolution. This keeps the records easy to scan while still showing the checks, commands, screenshots, and configuration changes used to confirm each fix.
 
-- **Actions**  
-  Records the checks, commands, configuration changes, comparisons, and tests used to narrow down the cause.
+Current troubleshooting records include DNS IPv6 conflict handling and Windows client firewall ping behaviour. The full troubleshooting index is available here:
 
-- **Resolution**  
-  Records what fixed the issue and how the working state was confirmed.
+```text
+troubleshooting/README.md
+```
 
 This keeps ADBox focused on the technical administration side of the work: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, ticket forms, user-facing support records, and service desk workflow will be handled separately in the planned [N3 ticketing lab](https://github.com/erwinmagielda/n3).
+
+
+## Next Stage
+
+The next stage documents the working lab environment: physical host layout, VBox network mode, IP addressing, DNS configuration, and adapter settings used before building the Domain Controller.
