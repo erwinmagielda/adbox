@@ -1,4 +1,4 @@
-# Client Domain
+# Domain Join
 
 This section documents the process of joining the Windows 10 client machines to the `adbox.local` domain.
 
