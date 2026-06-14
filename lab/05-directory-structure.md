@@ -175,4 +175,4 @@ This structure provides the foundation for applying GP to users and computers in
 
 ## Next Stage
 
-Next: [Stage 7: Remote Desktop Access](07-remote-desktop.md), which tests domain-based Remote Desktop access using security groups and workstation validation.
+[Stage 6: Group Policy](06-group-policy.md), which applies and validates policy settings against the organised users, computers, and OUs.
