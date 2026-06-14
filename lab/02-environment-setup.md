@@ -89,4 +89,4 @@ These checks confirm that the clients can reach the server, resolve the domain, 
 
 ## Next Stage
 
-Next: [03-domain-controller.md](03-domain-controller.md), which documents the AD DS role installation, `adbox.local` forest creation, DC promotion, DNS role validation, and post-promotion checks.
+[Stage 3: Domain Controller](03-domain-controller.md), which documents the AD DS role installation, `adbox.local` forest creation, DC promotion, DNS role validation, and post-promotion checks.
