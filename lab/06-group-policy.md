@@ -44,13 +44,16 @@ The logon notice is configured under **Security Options** because Windows treats
 The policy path used was:
 
 ```text
-Computer Configuration > Policies > Windows Settings > Security Settings > Local Policies > Security Options
+Computer Configuration ⟶ Policies ⟶ Windows Settings ⟶ Security Settings ⟶ Local Policies ⟶ Security Options
 ```
 
 The configured settings were:
 
 ```text
 Interactive logon: Message title for users attempting to log on
+```
+
+```text
 Interactive logon: Message text for users attempting to log on
 ```
 
@@ -60,8 +63,8 @@ The GPO was configured with a workstation logon notice.
 
 | Setting       | Value                          |
 | ------------- | ------------------------------ |
-| Message title | `ADBox Lab Workstation`        |
-| Message text  | `Authorised ADBox users only.` |
+| Message Title | `ADBox Lab Workstation`        |
+| Message Text  | `Authorised ADBox users only.` |
 
 ![Logon Policy Configured](/screenshots/lab/06-group-policy/01-logon-policy-configured.png)
 
@@ -71,7 +74,7 @@ This confirms that the logon notice title and text were defined in the GPO.
 
 On `AD-WIN10-01`, Group Policy was updated manually from Command Prompt (CMD):
 
-```cmd
+```text
 gpupdate /force
 ```
 
@@ -83,7 +86,7 @@ The command completed successfully for both Computer Policy and User Policy.
 
 The `gpresult /r` command was then used to check which policies applied to the client.
 
-```cmd
+```text
 gpresult /r
 ```
 
