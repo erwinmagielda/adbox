@@ -2,15 +2,15 @@
 
 ADBox is a Windows identity and support administration lab for practising Active Directory-based user, device, policy, and remote support workflows.
 
-The lab runs on Oracle VirtualBox (VBox), Windows Server, and Windows 10 clients connected through a shared home network. It covers Domain Controller (DC) promotion, Domain Name System (DNS), Dynamic Host Configuration Protocol (DHCP), Internet Protocol version 4 (IPv4), Transmission Control Protocol/Internet Protocol (TCP/IP), Remote Desktop Protocol (RDP), and the supporting services used by Windows domain environments.
+This overview explains the technical design behind the lab. It covers the domain layout, network design, core services, evidence model, and troubleshooting approach used before the individual build stages begin.
 
-The aim is to build defendable evidence of practical Windows support work: preparing a domain, joining clients, organising users and computers, applying Group Policy (GP), testing remote access, mapping resources, recovering accounts, documenting faults, and using PowerShell for repeatable administration.
-
-Each stage records the configuration, validation checks, issues found, screenshots captured, and confirmed working state.
+The lab runs on Oracle VirtualBox (VBox), Windows Server, and Windows 10 clients connected through a shared home network. It uses `AD-SRV01` as the Domain Controller (DC) for `adbox.local`, with Windows 10 clients used to validate domain join, Group Policy (GP), Remote Desktop Protocol (RDP), and workstation administration from the client side.
 
 ## Lab Topology
 
-The lab runs across multiple physical laptops using VBox virtual machines (VMs) connected through the same home Wi-Fi network. `AD-SRV01` provides domain and DNS services for `adbox.local`, while the Windows 10 clients are used to test domain join, user logon, GP, remote access, and workstation administration.
+The lab runs across multiple physical laptops using VBox virtual machines (VMs). All machines connect through the same home Wi-Fi network, which allows the server and clients to communicate like separate devices on one local network.
+
+`AD-SRV01` provides domain and Domain Name System (DNS) services for `adbox.local`. The Windows 10 clients are used to test domain join, domain logon, GP, RDP, and workstation administration.
 
 ```text
 Home Wi-Fi / EE Router
@@ -34,19 +34,17 @@ Home Wi-Fi / EE Router
     └── DNS: 192.168.1.50
 ```
 
-`AD-SRV01` uses a static IP address so clients can reliably reach DNS and domain services. The Windows 10 clients receive their IP addresses from the home router, but their DNS settings point to `192.168.1.50` so they can resolve `adbox.local` through the DC.
-
-The network printer remains part of the lab as a practical support scenario for printer discovery, client mapping, access validation, and planned GP deployment.
+`AD-SRV01` uses a static Internet Protocol version 4 (IPv4) address so clients can reliably reach DNS and domain services. The Windows 10 clients receive their IPv4 addresses from the home router, but their DNS settings point to `192.168.1.50` so they can resolve `adbox.local` through the DC.
 
 ## Domain Design
 
 The lab uses `adbox.local` as the internal Active Directory domain. This provides the identity boundary where users, computers, groups, Organisational Units (OUs), and GP settings are managed.
 
 | Item                | Value         |
-|                     |               |
+| ------------------- | ------------- |
 | Full Domain Name    | `adbox.local` |
 | NetBIOS Domain Name | `ADBOX`       |
-| Domain Controller   | `AD-SRV01`    |
+| DC                  | `AD-SRV01`    |
 
 `AD-SRV01` is promoted as the first DC for the domain. Its domain role is writable, meaning users, groups, computers, policies, and other directory objects can be created and managed from this server.
 
@@ -66,7 +64,9 @@ username@adbox.local
 
 ## Network Design
 
-The lab uses VBox Bridged Adapter mode so each VM appears as a separate device on the same home network. This allows the server and clients to communicate across the shared Wi-Fi network while still running as isolated VMs on different physical laptops.
+The lab uses VBox Bridged Adapter mode so each VM appears as a separate device on the same home network. This keeps the setup close to a normal small network while still running the systems as isolated VMs.
+
+The server and clients are split across different physical laptops, but they communicate through the same router and wireless network.
 
 ```text
 Home Wi-Fi / EE Router
@@ -76,18 +76,20 @@ Home Wi-Fi / EE Router
 ```
 
 | Device        | Addressing                | DNS                                  |
-|---------------|---------------------------|--------------------------------------|
+| ------------- | ------------------------- | ------------------------------------ |
 | `AD-SRV01`    | Static IP: `192.168.1.50` | Points to itself: `192.168.1.50`     |
 | `AD-WIN10-01` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
 | `AD-WIN10-02` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
 
-The router continues to provide DHCP addressing for the clients. DHCP was not enabled on `AD-SRV01` because the lab runs on a shared home network where the router already provides IP address assignment.
+The router continues to provide Dynamic Host Configuration Protocol (DHCP) addressing for the clients. DHCP was not enabled on `AD-SRV01` because the lab runs on a shared home network where the router already provides IP address assignment.
 
-Internet Protocol version 6 (IPv6) was disabled on the Windows 10 lab adapters after testing showed that the clients were receiving IPv6 DNS information from the EE router. With IPv6 enabled, `nslookup adbox.local` timed out because the clients were using the wrong DNS path for the lab domain. The full issue is documented in [`dns-ipv6-conflict.md`](../troubleshooting/01-dns-ipv6-conflict.md).
+Internet Protocol version 6 (IPv6) was disabled on the Windows 10 lab adapters after testing showed that the clients were receiving IPv6 DNS information from the EE router. With IPv6 enabled, `nslookup adbox.local` timed out because the clients were using the wrong DNS path for the lab domain. The full issue is documented in [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md).
 
 ## Core Services
 
-The lab separates responsibilities between the server, router, and Windows clients.
+The lab separates responsibilities between the server, router, and Windows clients. This keeps the design simple enough to troubleshoot while still showing how core domain services fit together.
+
+`AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles normal home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
 
 | Service | Provider | Role In The Lab |
 |---|---|---|
@@ -99,52 +101,48 @@ The lab separates responsibilities between the server, router, and Windows clien
 | RDP | Windows clients and server | Supports remote access testing and support workflows. |
 | GP | `AD-SRV01` | Applies configuration to users and computers through linked policies. |
 
-`AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles normal home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
+## Evidence Model
 
-## Evidence Chain
+Each lab stage records the configuration, validation checks, screenshots, issues found, and confirmed working state. The goal is not just to show that something was configured, but to show how it was checked from the server or client side.
 
-The lab is documented as a staged support workflow.
+The build is dependency-led. The server must be reachable before DNS can be tested, DNS must work before clients can join the domain, and domain membership must exist before users, groups, policies, and RDP can be properly validated.
 
-| Step | Stage | Evidence |
-|---|
-| 1 | Server Installation        | Windows Server installed in VBox.                                                | 
-| 2 | Environment Setup          | Static server address, client DHCP, DNS path, and bridged networking documented. |
-| 3 | DC Build                   | `AD-SRV01` promoted as the first DC for `adbox.local`.                           |
-| 4 | Domain Join                | Windows 10 clients joined to `adbox.local`.                                      |
-| 5 | Directory Structure        | Users, computers, OUs, and groups organised.                                     |
-| 6 | GP Validation              | Policies applied and validated against users or computers.                       |
-| 7 | RDP Support                | Remote access tested through controlled access rules.                            |
-| 8 | Printer Mapping            | Printer discovery, mapping, and access validation documented.                    |
-| 9 | Account Recovery           | Password reset, unlock, disable, and recovery tasks recorded.                    |
-| 10 | PowerShell Administration | Repeatable administration tasks scripted and validated.                          |
-| 11 | Troubleshooting           | Issues documented with discovery, actions, and resolution.                       |
+```text
+Environment Setup → Domain Controller → Domain Join → Directory Structure → Group Policy → Remote Desktop Access
+```
 
-The chain is dependency-led. The server must be reachable before DNS can be tested, DNS must work before clients can join the domain, and domain membership must exist before users, groups, policies, RDP, printer mapping, and account recovery scenarios can be properly validated.
+Screenshots are stored under matching folders so each report can be reviewed alongside its evidence.
 
-## Repository Structure
+```text
+screenshots/lab/
+├── 02-environment-setup/
+├── 03-domain-controller/
+├── 04-domain-join/
+├── 05-directory-structure/
+├── 06-group-policy/
+└── 07-remote-desktop/
+```
 
-The repository separates build records, troubleshooting notes, screenshots, scripts, and reference notes.
-
-| Folder             | Purpose                                                       |
-|--------------------|---------------------------------------------------------------|
-| `lab/`             | Main build and validation reports.                            |
-| `troubleshooting/` | Fault records with discovery, actions, and resolution.        |
-| `scripts/`         | PowerShell scripts for repeatable administration tasks.       |
-| `screenshots/`     | Evidence used by the lab and troubleshooting reports.         |
-| `notes/`           | Command Prompt (CMD), PowerShell, and terminology references. |
-
-## Troubleshooting Records
+## Troubleshooting Approach
 
 Troubleshooting records are stored separately from the main lab reports so the build path stays readable while real faults remain documented.
 
-Current records are listed in [`troubleshooting-records.md`](../troubleshooting/troubleshooting-records.md).
+Each record uses the same structure:
+
+| Section    | Purpose                                                                       |
+| ---------- | ----------------------------------------------------------------------------- |
+| Discovery  | What was observed, what failed, and what evidence showed the issue existed.   |
+| Actions    | Checks, commands, configuration changes, and tests used to isolate the cause. |
+| Resolution | What fixed the issue and how the working state was confirmed.                 |
+
+Current records are listed in [Troubleshooting Records](../troubleshooting/troubleshooting-records.md).
 
 | Record | Focus |
 |---|---|
-| [`01-dns-ipv6-conflict.md`](../troubleshooting/01-dns-ipv6-conflict.md) | DNS resolution, IPv4, IPv6, and router-provided DNS behaviour. |
-| [`02-client-firewall-ping.md`](../troubleshooting/02-client-firewall-ping.md) | Windows Firewall, ICMP, and server-to-client ping testing. |
+| [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md) | DNS resolution, IPv4, IPv6, and router-provided DNS behaviour. |
+| [Client Firewall Ping](../troubleshooting/02-client-firewall-ping.md) | Windows Firewall, Internet Control Message Protocol (ICMP), and server-to-client ping testing. |
 
-ADBox stays focused on technical administration: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, user-facing support forms, and service desk workflow is handled separately in the [N3 ticketing lab](https://github.com/erwinmagielda/n3).
+ADBox stays focused on technical administration: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, user-facing support forms, and service desk workflow are handled separately in the [N3 ticketing lab](https://github.com/erwinmagielda/n3).
 
 ## Next Stage
 
