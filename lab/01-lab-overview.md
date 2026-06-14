@@ -91,15 +91,15 @@ The lab separates responsibilities between the server, router, and Windows clien
 
 `AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
 
-| Service                                  | Provider                   | Role In The Lab                                                          |
-| ---------------------------------------- | -------------------------- | ------------------------------------------------------------------------ |
-| Active Directory Domain Services (AD DS) | `AD-SRV01`                 | Stores and manages users, computers, groups, OUs, and domain objects.    |
-| DC                                       | `AD-SRV01`                 | Authenticates domain users and computers.                                |
-| DNS                                      | `AD-SRV01`                 | Resolves `adbox.local` and allows clients to locate domain services.     |
-| Global Catalog                           | `AD-SRV01`                 | Supports directory lookups for users, groups, computers, and AD objects. |
-| DHCP                                     | EE Router                  | Provides IP addresses to the Windows 10 clients on the home network.     |
-| RDP                                      | Windows clients and server | Supports remote access testing and support workflows.                    |
-| GP                                       | `AD-SRV01`                 | Applies configuration to users and computers through linked policies.    |
+| Service | Provider | Role In The Lab |
+|---|---|---|
+| Active Directory Domain Services (AD DS) | `AD-SRV01` | Stores and manages users, computers, groups, OUs, and domain objects. |
+| DC | `AD-SRV01` | Authenticates domain users and computers. |
+| DNS | `AD-SRV01` | Resolves `adbox.local` and allows clients to locate domain services. |
+| Global Catalog | `AD-SRV01` | Supports directory lookups for users, groups, computers, and AD objects. |
+| DHCP | EE Router | Provides IP addresses to the Windows 10 clients on the home network. |
+| RDP | Windows clients and server | Supports remote access testing and support workflows. |
+| GP | `AD-SRV01` | Applies configuration to users and computers through linked policies. |
 
 ## Evidence Model
 
@@ -134,11 +134,6 @@ Troubleshooting records capture real faults found during the lab build. Each rec
 | Resolution | What fixed the issue and how the working state was confirmed.                 |
 
 Current records are listed in [Troubleshooting Records](../troubleshooting/troubleshooting-records.md).
-
-| Record                                                                | Focus                                                                                          |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md)       | DNS resolution, IPv4, IPv6, and router-provided DNS behaviour.                                 |
-| [Client Firewall Ping](../troubleshooting/02-client-firewall-ping.md) | Windows Firewall, Internet Control Message Protocol (ICMP), and server-to-client ping testing. |
 
 ADBox stays focused on technical administration: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, user-facing support forms, and service desk workflow are handled separately in the [N3 ticketing lab](https://github.com/erwinmagielda/n3).
 

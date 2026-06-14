@@ -10,21 +10,21 @@ ADBox demonstrates a practical support workflow: preparing a server, building a 
 
 Each skill is backed by a working configuration, validation step, screenshot, or troubleshooting record.
 
-| Skill                                    | Demonstration                                                                                                 |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Virtualisation                           | Built the lab with VBox VMs across multiple physical laptops.                                                 |
-| Windows Server Administration            | Prepared and configured `AD-SRV01` as the main Windows Server system for the lab.                             |
-| Active Directory Domain Services (AD DS) | Installed AD DS and promoted `AD-SRV01` as the first DC for `adbox.local`.                                    |
-| Domain Name System (DNS)                 | Configured clients to use `AD-SRV01` for domain resolution and validated lookups with `nslookup`.             |
-| Network Configuration                    | Used bridged networking, static server addressing, router DHCP, and IPv4 validation across the lab.           |
-| Windows Client Administration            | Joined Windows 10 clients to the domain and confirmed their computer objects in Active Directory.             |
-| Directory Administration                 | Created an Organisational Unit (OU) structure for users, computers, groups, and future service accounts.      |
-| User Administration                      | Created department users with User Principal Name (UPN) logon formats and password-change requirements.       |
-| Security Group Administration            | Created Global Security groups and tested group membership changes for access-control preparation.            |
-| Group Policy (GP)                        | Linked a workstation GPO, applied a logon notice, refreshed policy, and validated the result with `gpresult`. |
-| Remote Desktop Protocol (RDP)            | Enabled RDP on a domain-joined workstation and validated a remote session with Command Prompt (CMD).          |
-| Troubleshooting                          | Documented DNS and firewall issues using discovery, actions, and resolution records.                          |
-| Technical Documentation                  | Recorded each stage through Markdown reports, screenshots, command output, and clear evidence chains.         |
+| Skill | Demonstration |
+|---|---|
+| Virtualisation | Built the lab with VBox VMs across multiple physical laptops. |
+| Windows Server Administration | Prepared and configured `AD-SRV01` as the main Windows Server system for the lab. |
+| Active Directory Domain Services (AD DS) | Installed AD DS and promoted `AD-SRV01` as the first DC for `adbox.local`. |
+| Domain Name System (DNS) | Configured clients to use `AD-SRV01` for domain resolution and validated lookups with `nslookup`. |
+| Network Configuration | Used bridged networking, static server addressing, router DHCP, and IPv4 validation across the lab. |
+| Windows Client Administration | Joined Windows 10 clients to the domain and confirmed their computer objects in Active Directory. |
+| Directory Administration | Created an Organisational Unit (OU) structure for users, computers, groups, and future service accounts. |
+| User Administration | Created department users with User Principal Name (UPN) logon formats and password-change requirements. |
+| Security Group Administration | Created Global Security groups and tested group membership changes for access-control preparation. |
+| Group Policy (GP) | Linked a workstation GPO, applied a logon notice, refreshed policy, and validated the result with `gpresult`. |
+| Remote Desktop Protocol (RDP) | Enabled RDP on a domain-joined workstation and validated a remote session with Command Prompt (CMD). |
+| Troubleshooting | Documented DNS and firewall issues using discovery, actions, and resolution records. |
+| Technical Documentation | Recorded each stage through Markdown reports, screenshots, command output, and clear evidence chains. |
 
 ## Lab Environment
 
@@ -67,15 +67,15 @@ The lab is written as a staged build. Each report introduces one practical capab
 
 The stages follow the order of a working domain build: prepare the environment, build the DC, join clients, organise Active Directory, apply GP, and validate RDP access.
 
-| Stage | Report                                               | Focus                                                                                                        |
-| ----- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| 1     | [Lab Overview](lab/01-lab-overview.md)               | Technical design, topology, domain plan, network layout, and evidence model.                                 |
-| 2     | [Environment Setup](lab/02-environment-setup.md)     | VBox networking, static server addressing, client DHCP, and DNS path.                                        |
-| 3     | [Domain Controller](lab/03-domain-controller.md)     | AD DS installation, forest creation, DC promotion, DNS role validation, and ADUC checks.                     |
-| 4     | [Domain Join](lab/04-domain-join.md)                 | Windows 10 client domain join, domain sign-in, and AD computer object validation.                            |
-| 5     | [Directory Structure](lab/05-directory-structure.md) | OU design, user accounts, security groups, computer placement, and group membership.                         |
-| 6     | [Group Policy](lab/06-group-policy.md)               | Workstation GPO creation, logon notice configuration, `gpupdate`, `gpresult`, and visible client validation. |
-| 7     | [Remote Desktop Access](lab/07-remote-desktop.md)    | RDP enablement, security group access, remote connection, and session identity validation.                   |
+| Stage | Report | Focus |
+|---|---|---|
+| 1 | [Lab Overview](lab/01-lab-overview.md) | Technical design, topology, domain plan, network layout, and evidence model. |
+| 2 | [Environment Setup](lab/02-environment-setup.md) | VBox networking, static server addressing, client DHCP, and DNS path. |
+| 3 | [Domain Controller](lab/03-domain-controller.md) | AD DS installation, forest creation, DC promotion, DNS role validation, and ADUC checks. |
+| 4 | [Domain Join](lab/04-domain-join.md) | Windows 10 client domain join, domain sign-in, and AD computer object validation. |
+| 5 | [Directory Structure](lab/05-directory-structure.md) | OU design, user accounts, security groups, computer placement, and group membership. |
+| 6 | [Group Policy](lab/06-group-policy.md) | Workstation GPO creation, logon notice configuration, `gpupdate`, `gpresult`, and visible client validation. |
+| 7 | [Remote Desktop Access](lab/07-remote-desktop.md) | RDP enablement, security group access, remote connection, and session identity validation. |                   |
 
 ## Evidence Chain
 
@@ -103,25 +103,11 @@ screenshots/lab/06-group-policy/
 
 Troubleshooting records document faults found during the lab build. Each record captures the issue, the checks performed, the fix applied, and the confirmed working state.
 
-| Record                                                                      | Focus                                                                                                              |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| [DNS IPv6 Conflict](troubleshooting/01-dns-ipv6-conflict.md)                | Client DNS lookups bypassing AD DNS because of router-provided Internet Protocol version 6 (IPv6) DNS information. |
-| [Client Firewall Ping](troubleshooting/02-client-firewall-ping.md)          | Server-to-client ping blocked by Windows Firewall inbound ICMP rules.                                              |
-| [Troubleshooting Records Index](troubleshooting/troubleshooting-records.md) | Index of recorded lab faults and fixes.                                                                            |
-
-## Current Status
-
-ADBox is a functional lab implementation.
-
-The current build includes a working Windows Server DC, two Windows 10 domain-joined clients, a structured Active Directory OU layout, department users, security groups, a tested workstation GP configuration, and a validated RDP access workflow.
-
-The lab is documented through Markdown reports, screenshots, command output, and troubleshooting records.
-
-## Lab Scope
-
-ADBox runs on a home-network lab using Windows Server, Windows 10 clients, VBox, router DHCP, and staged Markdown documentation.
-
-The configuration choices keep the lab understandable and reviewable: one DC, two Windows clients, a clear OU structure, controlled security groups, visible GP testing, and RDP validation.
+| Record | Focus |
+|---|---|
+| [DNS IPv6 Conflict](troubleshooting/01-dns-ipv6-conflict.md) | Client DNS lookups bypassing AD DNS because of router-provided Internet Protocol version 6 (IPv6) DNS information. |
+| [Client Firewall Ping](troubleshooting/02-client-firewall-ping.md) | Server-to-client ping blocked by Windows Firewall inbound ICMP rules. |
+| [Troubleshooting Records Index](troubleshooting/troubleshooting-records.md) | Index of recorded lab faults and fixes. |                                                                           |
 
 ## Start Here
 
