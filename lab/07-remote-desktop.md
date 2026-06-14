@@ -70,7 +70,7 @@ After connection, Command Prompt (CMD) was used inside the RDP session to confir
 
 The validation commands used were:
 
-```cmd
+```text
 whoami
 hostname
 query user
