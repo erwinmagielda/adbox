@@ -2,15 +2,15 @@
 
 ADBox is a Windows identity and support administration lab for practising Active Directory-based user, device, policy, and remote support workflows.
 
-This overview explains the technical design behind the lab. It covers the domain layout, network design, core services, evidence model, and troubleshooting approach used before the individual build stages begin.
+This overview explains the technical design behind the lab: topology, domain layout, network design, core services, evidence model, and troubleshooting approach.
 
-The lab runs on Oracle VirtualBox (VBox), Windows Server, and Windows 10 clients connected through a shared home network. It uses `AD-SRV01` as the Domain Controller (DC) for `adbox.local`, with Windows 10 clients used to validate domain join, Group Policy (GP), Remote Desktop Protocol (RDP), and workstation administration from the client side.
+The lab runs on Oracle VirtualBox (VBox), Windows Server, and Windows 10 clients connected through a shared home network. `AD-SRV01` provides the Domain Controller (DC) role for `adbox.local`, while the Windows 10 clients validate domain join, Group Policy (GP), Remote Desktop Protocol (RDP), and workstation administration from the client side.
 
 ## Lab Topology
 
-The lab runs across multiple physical laptops using VBox virtual machines (VMs). All machines connect through the same home Wi-Fi network, which allows the server and clients to communicate like separate devices on one local network.
+The lab runs across multiple physical laptops using VBox virtual machines (VMs). All machines connect through the same home Wi-Fi network, allowing the server and clients to communicate as separate devices on one local network.
 
-`AD-SRV01` provides domain and Domain Name System (DNS) services for `adbox.local`. The Windows 10 clients are used to test domain join, domain logon, GP, RDP, and workstation administration.
+`AD-SRV01` provides domain and Domain Name System (DNS) services for `adbox.local`. The Windows 10 clients test domain join, domain logon, GP, RDP, and workstation administration.
 
 ```text
 Home Wi-Fi / EE Router
@@ -34,7 +34,7 @@ Home Wi-Fi / EE Router
     └── DNS: 192.168.1.50
 ```
 
-`AD-SRV01` uses a static Internet Protocol version 4 (IPv4) address so clients can reliably reach DNS and domain services. The Windows 10 clients receive their IPv4 addresses from the home router, but their DNS settings point to `192.168.1.50` so they can resolve `adbox.local` through the DC.
+`AD-SRV01` uses a static Internet Protocol version 4 (IPv4) address so clients can reliably reach DNS and domain services. The Windows 10 clients receive their IPv4 addresses from the home router, and their DNS settings point to `192.168.1.50` so they can resolve `adbox.local` through the DC.
 
 ## Domain Design
 
@@ -64,7 +64,7 @@ username@adbox.local
 
 ## Network Design
 
-The lab uses VBox Bridged Adapter mode so each VM appears as a separate device on the same home network. This keeps the setup close to a normal small network while still running the systems as isolated VMs.
+The lab uses VBox Bridged Adapter mode so each VM appears as a separate device on the same home network. This keeps the setup close to a small Windows network while still running the systems as isolated VMs.
 
 The server and clients are split across different physical laptops, but they communicate through the same router and wireless network.
 
@@ -81,31 +81,31 @@ Home Wi-Fi / EE Router
 | `AD-WIN10-01` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
 | `AD-WIN10-02` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
 
-The router continues to provide Dynamic Host Configuration Protocol (DHCP) addressing for the clients. DHCP was not enabled on `AD-SRV01` because the lab runs on a shared home network where the router already provides IP address assignment.
+The router provides Dynamic Host Configuration Protocol (DHCP) addressing for the clients. `AD-SRV01` stays on a static IPv4 address so the clients have a stable DNS and domain target.
 
 Internet Protocol version 6 (IPv6) was disabled on the Windows 10 lab adapters after testing showed that the clients were receiving IPv6 DNS information from the EE router. With IPv6 enabled, `nslookup adbox.local` timed out because the clients were using the wrong DNS path for the lab domain. The full issue is documented in [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md).
 
 ## Core Services
 
-The lab separates responsibilities between the server, router, and Windows clients. This keeps the design simple enough to troubleshoot while still showing how core domain services fit together.
+The lab separates responsibilities between the server, router, and Windows clients. This keeps the design easy to test and gives each service a clear purpose.
 
-`AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles normal home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
+`AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
 
-| Service | Provider | Role In The Lab |
-|---|---|---|
-| Active Directory Domain Services (AD DS) | `AD-SRV01` | Stores and manages users, computers, groups, OUs, and domain objects. |
-| DC | `AD-SRV01` | Authenticates domain users and computers. |
-| DNS | `AD-SRV01` | Resolves `adbox.local` and allows clients to locate domain services. |
-| Global Catalog | `AD-SRV01` | Supports directory lookups for users, groups, computers, and AD objects. |
-| DHCP | EE Router | Provides IP addresses to the Windows 10 clients on the home network. |
-| RDP | Windows clients and server | Supports remote access testing and support workflows. |
-| GP | `AD-SRV01` | Applies configuration to users and computers through linked policies. |
+| Service                                  | Provider                   | Role In The Lab                                                          |
+| ---------------------------------------- | -------------------------- | ------------------------------------------------------------------------ |
+| Active Directory Domain Services (AD DS) | `AD-SRV01`                 | Stores and manages users, computers, groups, OUs, and domain objects.    |
+| DC                                       | `AD-SRV01`                 | Authenticates domain users and computers.                                |
+| DNS                                      | `AD-SRV01`                 | Resolves `adbox.local` and allows clients to locate domain services.     |
+| Global Catalog                           | `AD-SRV01`                 | Supports directory lookups for users, groups, computers, and AD objects. |
+| DHCP                                     | EE Router                  | Provides IP addresses to the Windows 10 clients on the home network.     |
+| RDP                                      | Windows clients and server | Supports remote access testing and support workflows.                    |
+| GP                                       | `AD-SRV01`                 | Applies configuration to users and computers through linked policies.    |
 
 ## Evidence Model
 
-Each lab stage records the configuration, validation checks, screenshots, issues found, and confirmed working state. The goal is not just to show that something was configured, but to show how it was checked from the server or client side.
+Each lab stage records the configuration, validation checks, screenshots, issues found, and confirmed working state. The evidence shows the admin-side configuration and the client-side result where possible.
 
-The build is dependency-led. The server must be reachable before DNS can be tested, DNS must work before clients can join the domain, and domain membership must exist before users, groups, policies, and RDP can be properly validated.
+The build is dependency-led. Server connectivity supports DNS testing, DNS supports domain join, domain membership supports directory administration, and directory structure supports GP and RDP validation.
 
 ```text
 Environment Setup → Domain Controller → Domain Join → Directory Structure → Group Policy → Remote Desktop Access
@@ -125,9 +125,7 @@ screenshots/lab/
 
 ## Troubleshooting Approach
 
-Troubleshooting records are stored separately from the main lab reports so the build path stays readable while real faults remain documented.
-
-Each record uses the same structure:
+Troubleshooting records capture real faults found during the lab build. Each record shows the problem, the checks used to isolate it, and the confirmed fix.
 
 | Section    | Purpose                                                                       |
 | ---------- | ----------------------------------------------------------------------------- |
@@ -137,9 +135,9 @@ Each record uses the same structure:
 
 Current records are listed in [Troubleshooting Records](../troubleshooting/troubleshooting-records.md).
 
-| Record | Focus |
-|---|---|
-| [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md) | DNS resolution, IPv4, IPv6, and router-provided DNS behaviour. |
+| Record                                                                | Focus                                                                                          |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md)       | DNS resolution, IPv4, IPv6, and router-provided DNS behaviour.                                 |
 | [Client Firewall Ping](../troubleshooting/02-client-firewall-ping.md) | Windows Firewall, Internet Control Message Protocol (ICMP), and server-to-client ping testing. |
 
 ADBox stays focused on technical administration: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, user-facing support forms, and service desk workflow are handled separately in the [N3 ticketing lab](https://github.com/erwinmagielda/n3).
