@@ -12,10 +12,10 @@ Before attempting the domain join, `AD-WIN10-01` was checked from the client sid
 
 | Check                                     | Expected Result                          |
 | ----------------------------------------- | ---------------------------------------- |
-| Client hostname                           | `AD-WIN10-01`                            |
-| Client DNS server                         | `192.168.1.50`                           |
-| Server connectivity                       | `ping 192.168.1.50` succeeds             |
-| Domain lookup                             | `nslookup adbox.local` resolves          |
+| Client Hostname                           | `AD-WIN10-01`                            |
+| Client DNS Server                         | `192.168.1.50`                           |
+| Server Connectivity                       | `ping 192.168.1.50` succeeds             |
+| Domain Lookup                             | `nslookup adbox.local` resolves          |
 | Server Fully Qualified Domain Name (FQDN) | `nslookup AD-SRV01.adbox.local` resolves |
 
 ![Client DNS Precheck](/screenshots/lab/04-domain-join/01-client-dns-precheck.png)
@@ -64,8 +64,8 @@ After both clients were joined, ADUC was checked on `AD-SRV01`.
 
 | Client        | Status                  |
 | ------------- | ----------------------- |
-| `AD-WIN10-01` | Joined to `adbox.local` |
-| `AD-WIN10-02` | Joined to `adbox.local` |
+| `AD-WIN10-01` | Joined: `adbox.local` |
+| `AD-WIN10-02` | Joined: `adbox.local` |
 
 ![ADUC Computer Objects](/screenshots/lab/04-domain-join/05-aduc-computer-objects.png)
 
