@@ -7,7 +7,7 @@ After the clients were joined to `adbox.local` and moved into the `Workstations`
 The logon notice itself is a simple visible test. The main purpose of this stage is to prove the full policy chain:
 
 ```text
-Workstation OU ⟶ Linked GPO ⟶ Configured Computer Policy ⟶ Client Policy Update ⟶ GP Result Validation ⟶ Visible Workstation Result
+Workstation OU → Linked GPO → Configured Computer Policy → Client Policy Update → GP Result Validation → Visible Workstation Result
 ```
 
 ## Policy Target
@@ -15,7 +15,7 @@ Workstation OU ⟶ Linked GPO ⟶ Configured Computer Policy ⟶ Client Policy U
 The policy was created for the workstation computers organised in the previous lab stage.
 
 ```text
-ADBox-Lab ⟶ Computers ⟶ Workstations
+ADBox-Lab → Computers → Workstations
 ```
 
 This OU contains the joined Windows 10 clients:
@@ -44,7 +44,7 @@ The logon notice is configured under **Security Options** because Windows treats
 The policy path used was:
 
 ```text
-Computer Configuration ⟶ Policies ⟶ Windows Settings ⟶ Security Settings ⟶ Local Policies ⟶ Security Options
+Computer Configuration → Policies → Windows Settings → Security Settings → Local Policies → Security Options
 ```
 
 The configured settings were:

@@ -62,7 +62,7 @@ When `AD-WIN10-01` and `AD-WIN10-02` joined the domain, their computer objects w
 The joined workstation objects were moved into:
 
 ```text
-ADBox-Lab > Computers > Workstations
+ADBox-Lab → Computers → Workstations
 ```
 
 ![Computers Move Dialog](/screenshots/lab/05-directory-structure/03-computers-move-dialog.png)
@@ -120,7 +120,7 @@ The lab groups were created as **Global Security** groups. This fits the current
 Security groups were created inside:
 
 ```text
-ADBox-Lab > Groups > Security
+ADBox-Lab → Groups → Security
 ```
 
 The group creation dialog shows `GG_IT_Users` being created as a Global Security group.
