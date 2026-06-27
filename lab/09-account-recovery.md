@@ -18,7 +18,7 @@ The purpose was to practise common support actions: resetting a user password, f
 
 The account recovery process followed a simple support flow.
 
-```text id="rozd5s"
+```text
 Password Reset -> Forced Password Change -> User Sign-In Confirmed -> Account Disabled -> Sign-In Blocked -> Account Enabled -> Sign-In Restored
 ```
 
@@ -53,7 +53,7 @@ The account was not locked, so `Unlock the user's account` was left unticked.
 
 On `AD-WIN10-01`, the user attempted to sign in as:
 
-```text id="q301b8"
+```text
 ADBOX\sam.taylor
 ```
 
@@ -75,14 +75,14 @@ After the password change, Sam Taylor signed in successfully on `AD-WIN10-01`.
 
 The session was validated with Command Prompt.
 
-```cmd id="qtxm7w"
+```text
 whoami
 hostname
 ```
 
 Expected identity:
 
-```text id="7a54x5"
+```text
 adbox\sam.taylor
 AD-WIN10-01
 ```
@@ -119,14 +119,14 @@ After the account was enabled again, Sam Taylor signed in successfully on `AD-WI
 
 The restored session was validated with Command Prompt.
 
-```cmd id="ny5tmp"
+```text
 whoami
 hostname
 ```
 
 Expected identity:
 
-```text id="uzp474"
+```text
 adbox\sam.taylor
 AD-WIN10-01
 ```
