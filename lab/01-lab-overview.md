@@ -57,7 +57,7 @@ username@adbox.local
 
 These formats are used later when testing domain sign-in, password recovery, Remote Desktop access, and user-based file-share access.
 
->The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
+> The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
 
 ## Network Plan
 
