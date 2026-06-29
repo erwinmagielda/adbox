@@ -1,8 +1,8 @@
 # PowerShell Administration
 
-This stage uses Windows PowerShell on `AD-SRV01` to review the ADBox domain after the main GUI-based configuration work.
+PowerShell Administration closes the lab by checking the same environment from the command line instead of relying only on graphical tools.
 
-The aim is not to build a large script. The checks are kept short so they can be read, repeated, and used as support-style commands for account review, group membership checks, DNS checks, connectivity checks, share validation, and a basic exported user report.
+The commands are deliberately short. They are support-style checks for users, account state, group membership, computer objects, DNS resolution, client reachability, share access, and a basic CSV export.
 
 ## Review Target
 
@@ -40,6 +40,9 @@ Step | Action | Covers
 
 The Active Directory module was imported on `AD-SRV01`.
 
+> Open: Start → Windows PowerShell
+> Run on: `AD-SRV01`
+
 ```powershell
 Import-Module ActiveDirectory
 
@@ -60,11 +63,13 @@ This confirmed that Active Directory PowerShell commands were available on the s
 
 ![PowerShell AD Module](../screenshots/lab/10-powershell-administration/01-powershell-ad-module.png)
 
-> The Active Directory module provides commands such as `Get-ADUser`, `Get-ADComputer`, and `Search-ADAccount`. These are useful when the same checks need to be repeated or exported.
+The Active Directory module provides commands such as `Get-ADUser`, `Get-ADComputer`, and `Search-ADAccount`. These are useful when the same checks need to be repeated or exported.
 
 ## ADBox User List
 
 The ADBox lab users were queried from the lab Users OU.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Get-ADUser -Filter * -SearchBase "OU=Users,OU=ADBox-Lab,DC=adbox,DC=local" |
@@ -91,11 +96,13 @@ Alex Morgan | `alex.morgan` | True
 Jamie Carter | `jamie.carter` | True
 Sam Taylor | `sam.taylor` | True
 
-> A search base keeps the command focused on the lab OU instead of returning every user object in the domain, including built-in accounts.
+A search base keeps the command focused on the lab OU instead of returning every user object in the domain, including built-in accounts.
 
 ## User Account Details
 
 Sam Taylor was checked directly to review account status after the account recovery stage.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Get-ADUser sam.taylor -Properties Enabled, PasswordLastSet, PasswordExpired, CannotChangePassword |
@@ -121,6 +128,8 @@ The output confirmed that the account was enabled, the password had been set, th
 ## User Group Membership
 
 Sam Taylor's group membership was checked from PowerShell.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Get-ADPrincipalGroupMembership sam.taylor |
@@ -150,6 +159,8 @@ GG_Warehouse_Users | Security | Global
 
 The domain computer objects were listed from Active Directory.
 
+> Run on: `AD-SRV01` PowerShell
+
 ```powershell
 Get-ADComputer -Filter * |
 Select-Object Name, Enabled, DistinguishedName
@@ -176,11 +187,13 @@ Computer | Purpose
 `AD-WIN10-01` | Domain-joined Windows 10 client
 `AD-WIN10-02` | Domain-joined Windows 10 client
 
-> A computer object is the Active Directory record for a domain-joined machine. It lets the domain recognise and manage that device.
+A computer object is the Active Directory record for a domain-joined machine. It lets the domain recognise and manage that device.
 
 ## Disabled Lab User Check
 
 Disabled user accounts were checked inside the ADBox lab Users OU.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 $disabledLabUsers = Search-ADAccount -AccountDisabled -UsersOnly -SearchBase "OU=Users,OU=ADBox-Lab,DC=adbox,DC=local"
@@ -212,6 +225,8 @@ The check was scoped to the ADBox lab Users OU so the result focused on lab-crea
 
 DNS resolution was checked for the lab domain.
 
+> Run on: `AD-SRV01` PowerShell
+
 ```powershell
 Resolve-DnsName adbox.local -Type A
 ```
@@ -228,11 +243,13 @@ The output confirmed that `adbox.local` resolved to `192.168.1.50`, the static I
 
 ![Resolve DNS Name](../screenshots/lab/10-powershell-administration/07-resolve-dns-name.png)
 
-> An A record maps a name to an IPv4 address. In this lab, `adbox.local` resolving to `192.168.1.50` confirms that the domain name points back to `AD-SRV01`.
+An A record maps a name to an IPv4 address. In this lab, `adbox.local` resolving to `192.168.1.50` confirms that the domain name points back to `AD-SRV01`.
 
 ## Client Connectivity Check
 
 Connectivity from `AD-SRV01` to both domain clients was tested with `Test-Connection`.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Test-Connection AD-WIN10-01 -Count 2
@@ -262,6 +279,8 @@ Client | IPv4 Address
 
 The Sales share from the file sharing stage was checked from PowerShell.
 
+> Run on: `AD-SRV01` PowerShell
+
 ```powershell
 Test-Path "\\AD-SRV01\Sales"
 
@@ -285,11 +304,13 @@ File | Purpose
 `sales-access-test.txt` | Original file created during share setup.
 `client-created-document.txt` | File created from the client during access testing.
 
-> A UNC path starts with the server name and share name, such as `\\AD-SRV01\Sales`. This is the normal Windows format for accessing a shared folder over the network.
+A UNC path starts with the server name and share name, such as `\\AD-SRV01\Sales`. This is the normal Windows format for accessing a shared folder over the network.
 
 ## User Report Export
 
 A basic user report was exported from the ADBox lab Users OU.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Get-ADUser -Filter * -SearchBase "OU=Users,OU=ADBox-Lab,DC=adbox,DC=local" |
@@ -314,11 +335,13 @@ This created a CSV report containing the lab user names, logon names, and enable
 
 ![Export User Report](../screenshots/lab/10-powershell-administration/10-export-user-report.png)
 
-> A pipeline passes output from one command into the next command. Here, user objects are queried, selected fields are chosen, and the final result is written to a CSV file.
+A pipeline passes output from one command into the next command. Here, user objects are queried, selected fields are chosen, and the final result is written to a CSV file.
 
 ## User Report Validation
 
 The exported CSV file was then checked from PowerShell.
+
+> Run on: `AD-SRV01` PowerShell
 
 ```powershell
 Get-ChildItem "C:\ADBox-Shares\adbox-users-report.csv"

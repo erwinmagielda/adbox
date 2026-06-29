@@ -1,8 +1,8 @@
 # Domain Controller
 
-This stage turns `AD-SRV01` from a prepared Windows Server machine into the first Domain Controller for the `adbox.local` domain.
+The Domain Controller stage is where the prepared server becomes the identity and DNS centre of the lab.
 
-The server already has bridged networking, a static IPv4 address, and DNS pointed to itself from the environment setup stage. This page records the Active Directory Domain Services installation, new forest creation, promotion options, expected wizard warnings, and post-promotion checks.
+`AD-SRV01` already has the network base from the environment setup: bridged networking, a static IPv4 address, and DNS pointed to itself. This page records the AD DS role installation, promotion into a new forest, expected wizard warnings, and the checks used after restart.
 
 ## Build Steps
 
@@ -44,19 +44,23 @@ These settings are covered in [02 Environment Setup](02-environment-setup.md).
 
 The Active Directory Domain Services role was selected through the Add Roles and Features Wizard.
 
-![Selected Server Roles](/screenshots/lab/03-domain-controller/01-selected-server-roles.png)
+> Open: Server Manager → Manage → Add Roles and Features
+> Wizard path: Role-based or feature-based installation → Select `AD-SRV01` → Server Roles → Active Directory Domain Services
+
+![Selected Server Roles](../screenshots/lab/03-domain-controller/01-selected-server-roles.png)
 
 Installing the role adds the components needed for the server to provide directory services. At this point, the AD DS role is installed, but the server still needs promotion before it can act as a Domain Controller.
 
 After installation, Server Manager showed the post-deployment task to promote the server.
 
-![Server Promotion Notification](/screenshots/lab/03-domain-controller/02-server-promotion-notification.png)
-
-This promotion task is what creates the domain and changes the server into a Domain Controller.
+![Server Promotion Notification](../screenshots/lab/03-domain-controller/02-server-promotion-notification.png)
 
 ## New Forest Creation
 
 `AD-SRV01` was promoted using the **Add a new forest** option.
+
+> Open: Server Manager → Notification flag → Promote this server to a domain controller
+> Wizard page: Deployment Configuration → Add a new forest
 
 The root domain name used was:
 
@@ -64,13 +68,16 @@ The root domain name used was:
 adbox.local
 ```
 
-![New Local Forest](/screenshots/lab/03-domain-controller/03-new-local-forest.png)
+![New Local Forest](../screenshots/lab/03-domain-controller/03-new-local-forest.png)
 
 This created the first domain in a new Active Directory forest for the lab.
 
 ## Domain Controller Options
 
 The promotion wizard configured `AD-SRV01` as the first Domain Controller for the lab domain.
+
+> Wizard page: Domain Controller Options
+> Action: Leave DNS Server and Global Catalog selected, keep Read-only domain controller unselected, then set the DSRM password.
 
 Option | Setting
 --- | ---
@@ -79,7 +86,7 @@ Global Catalog | Enabled
 Read-Only Domain Controller | Disabled
 Domain Controller Type | Writable Domain Controller
 
-![Domain Controller Options](/screenshots/lab/03-domain-controller/04-domain-controller-options.png)
+![Domain Controller Options](../screenshots/lab/03-domain-controller/04-domain-controller-options.png)
 
 DNS was enabled because the clients need to resolve `adbox.local` and locate domain services. Global Catalog was enabled because this is the first Domain Controller in the domain.
 
@@ -89,9 +96,12 @@ The Directory Services Restore Mode password was set during promotion. The passw
 
 The wizard displayed a DNS delegation warning.
 
-![DNS Delegation Warning](/screenshots/lab/03-domain-controller/05-dns-delegation-warning.png)
+> Wizard page: DNS Options
+> Action: Review the warning and continue.
 
-> DNS Delegation is used when a parent DNS zone points a child domain to the DNS servers responsible for that child domain. The warning appeared because `adbox.local` is an internal lab domain and there is no parent DNS zone configured to delegate it to `AD-SRV01`.
+![DNS Delegation Warning](../screenshots/lab/03-domain-controller/05-dns-delegation-warning.png)
+
+DNS delegation is used when a parent DNS zone points a child domain to the DNS servers responsible for that child domain. The warning appeared because `adbox.local` is an internal lab domain and there is no parent DNS zone configured to delegate it to `AD-SRV01`.
 
 The warning did not block promotion because the Windows clients are configured to use `AD-SRV01` directly for `adbox.local` DNS lookups.
 
@@ -103,7 +113,10 @@ The wizard detected the NetBIOS domain name as:
 ADBOX
 ```
 
-![NetBIOS Domain Detection](/screenshots/lab/03-domain-controller/06-netbios-domain-detection.png)
+> Wizard page: Additional Options
+> Action: Confirm the detected NetBIOS domain name.
+
+![NetBIOS Domain Detection](../screenshots/lab/03-domain-controller/06-netbios-domain-detection.png)
 
 This allows domain accounts to sign in using the legacy-compatible format:
 
@@ -123,17 +136,20 @@ Both formats are used later in the lab when testing domain sign-in, account reco
 
 The default AD DS database, log, and SYSVOL paths were kept.
 
+> Wizard page: Paths
+> Action: Keep the default database, log, and SYSVOL locations.
+
 Path Type | Location
 --- | ---
 Database Folder | `C:\Windows\NTDS`
 Log Files Folder | `C:\Windows\NTDS`
 SYSVOL Folder | `C:\Windows\SYSVOL`
 
-![Controller Default Paths](/screenshots/lab/03-domain-controller/07-controller-default-paths.png)
+![Controller Default Paths](../screenshots/lab/03-domain-controller/07-controller-default-paths.png)
 
-> `NTDS` is the folder used by Active Directory Domain Services for the directory database and related log files. The main database file is `NTDS.dit`, which stores domain objects such as users, computers, groups, OUs, and directory configuration.
+`NTDS` is the folder used by Active Directory Domain Services for the directory database and related log files. The main database file is `NTDS.dit`, which stores domain objects such as users, computers, groups, OUs, and directory configuration.
 
-> `SYSVOL` is a shared folder used by Domain Controllers to store domain-wide files such as Group Policy content and logon scripts. Clients need access to SYSVOL so they can read policy files and domain scripts during normal domain operation.
+`SYSVOL` is a shared folder used by Domain Controllers to store domain-wide files such as Group Policy content and logon scripts. Clients need access to SYSVOL so they can read policy files and domain scripts during normal domain operation.
 
 The default paths are suitable for this single-server lab because `AD-SRV01` is the only Domain Controller and the environment does not need separate storage volumes.
 
@@ -141,7 +157,10 @@ The default paths are suitable for this single-server lab because `AD-SRV01` is 
 
 The prerequisites check passed before promotion.
 
-![Prerequisites Check Success](/screenshots/lab/03-domain-controller/08-prerequisites-check-success.png)
+> Wizard page: Prerequisites Check
+> Action: Confirm there are no blocking errors, then install.
+
+![Prerequisites Check Success](../screenshots/lab/03-domain-controller/08-prerequisites-check-success.png)
 
 The wizard showed warnings, but there were no blocking errors. After the check passed, the promotion completed and the server restarted.
 
@@ -149,7 +168,7 @@ The wizard showed warnings, but there were no blocking errors. After the check p
 
 After restart, the sign-in context showed the `ADBOX` domain.
 
-![Post Promotion Login](/screenshots/lab/03-domain-controller/09-post-promotion-login.png)
+![Post Promotion Login](../screenshots/lab/03-domain-controller/09-post-promotion-login.png)
 
 This confirmed that the server was operating inside the new `adbox.local` domain.
 
@@ -157,7 +176,10 @@ This confirmed that the server was operating inside the new `adbox.local` domain
 
 Server Manager confirmed the domain membership and installed roles.
 
-![Manager Domain Confirmed](/screenshots/lab/03-domain-controller/10-manager-domain-confirmed.png)
+> Open: Server Manager → Local Server
+> Check: Computer name, domain, IP address, and installed roles.
+
+![Manager Domain Confirmed](../screenshots/lab/03-domain-controller/10-manager-domain-confirmed.png)
 
 Check | Result
 --- | ---
@@ -172,15 +194,21 @@ This confirmed that the server identity, domain membership, and core roles were 
 
 The DNS role was visible in Server Manager, with `AD-SRV01` listed as the DNS server for the lab address.
 
-![DNS ADBox Zone](/screenshots/lab/03-domain-controller/11-dns-adbox-zone.png)
+> Open: Server Manager → Tools → DNS
+> Check: `AD-SRV01` is available as the DNS server and the `adbox.local` zone is visible.
+
+![DNS ADBox Zone](../screenshots/lab/03-domain-controller/11-dns-adbox-zone.png)
 
 A server-side lookup for the lab domain also returned the expected result.
 
-```text
+> Open: Win + R → `cmd`
+> Run on: `AD-SRV01`
+
+```cmd
 nslookup adbox.local
 ```
 
-![Server Nslookup Success](/screenshots/lab/03-domain-controller/13-server-nslookup-success.png)
+![Server Nslookup Success](../screenshots/lab/03-domain-controller/13-server-nslookup-success.png)
 
 This confirmed that `AD-SRV01` could resolve the lab domain after promotion.
 
@@ -188,7 +216,11 @@ This confirmed that `AD-SRV01` could resolve the lab domain after promotion.
 
 Active Directory Users and Computers showed the `adbox.local` domain.
 
-![ADUC Domain View](/screenshots/lab/03-domain-controller/12-aduc-domain-view.png)
+> Open: Server Manager → Tools → Active Directory Users and Computers
+> Shortcut: Win + R → `dsa.msc`
+> Check: `adbox.local` is visible and `AD-SRV01` appears under Domain Controllers.
+
+![ADUC Domain View](../screenshots/lab/03-domain-controller/12-aduc-domain-view.png)
 
 `AD-SRV01` was listed under Domain Controllers, confirming that the server object exists in the expected domain location.
 

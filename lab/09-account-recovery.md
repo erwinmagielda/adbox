@@ -1,8 +1,8 @@
 # Account Recovery
 
-This stage tests a basic Active Directory account recovery workflow for a Warehouse user account.
+Account recovery tests the kind of user issue that appears constantly in support work: a user cannot get in, a password needs resetting, or access needs to be blocked without deleting the account.
 
-The aim is to practise common support actions in a Windows domain: reset a password, force a password change at next sign-in, confirm the user can log in, disable the account, confirm access is blocked, enable the account again, and confirm access is restored.
+This stage uses the Warehouse user `Sam Taylor` to test password reset, forced password change, account disablement, blocked sign-in, account re-enable, and restored access from a Windows 10 client.
 
 ## Recovery Target
 
@@ -13,7 +13,7 @@ Item | Value
 Domain | `adbox.local`
 User | Sam Taylor
 Account | `ADBOX\sam.taylor`
-User Location | `ADBox-Lab > Users > Warehouse`
+User Location | `ADBox-Lab → Users → Warehouse`
 Client | `AD-WIN10-01`
 Admin System | `AD-SRV01`
 Admin Tool | Active Directory Users and Computers
@@ -40,6 +40,10 @@ Step | Action | Covers
 
 The account was checked in Active Directory Users and Computers before the recovery actions were applied.
 
+> Open: Server Manager → Tools → Active Directory Users and Computers
+> Shortcut: Win + R → `dsa.msc`
+> Path: ADBox-Lab → Users → Warehouse → Sam Taylor
+
 ![Account Before Reset](../screenshots/lab/09-account-recovery/01-account-before-reset.png)
 
 This confirmed that `sam.taylor` existed in the domain and was available for the recovery test.
@@ -47,6 +51,10 @@ This confirmed that `sam.taylor` existed in the domain and was available for the
 ## Password Reset
 
 The password was reset from Active Directory Users and Computers using the **Reset Password** action.
+
+> Open: Active Directory Users and Computers
+> Path: ADBox-Lab → Users → Warehouse
+> Action: Right-click Sam Taylor → Reset Password
 
 The reset used a temporary password and kept **User must change password at next logon** enabled.
 
@@ -59,11 +67,14 @@ Account Lockout Status | Account was not locked
 
 ![Password Reset Dialog](../screenshots/lab/09-account-recovery/02-password-reset-dialog.png)
 
-> A password reset lets the administrator set a temporary password. Forcing a password change at next sign-in means the user cannot keep using that temporary password as their normal password.
+A password reset lets the administrator set a temporary password. Forcing a password change at next sign-in means the user cannot keep using that temporary password as their normal password.
 
 ## Password Change Required
 
 On `AD-WIN10-01`, the user attempted to sign in as:
+
+> Open: Windows sign-in screen on `AD-WIN10-01`
+> Action: Other user → sign in with the temporary password
 
 ```text
 ADBOX\sam.taylor
@@ -79,6 +90,9 @@ This confirmed that the password reset and forced password change setting were b
 
 The password was changed from the Windows sign-in screen.
 
+> Open: Password change prompt on `AD-WIN10-01`
+> Action: Enter the temporary password, then set a new password.
+
 ![Client Password Changed](../screenshots/lab/09-account-recovery/04-client-password-changed.png)
 
 This completed the user-side part of the reset workflow: the temporary password was accepted, then replaced before desktop access was allowed.
@@ -88,6 +102,9 @@ This completed the user-side part of the reset workflow: the temporary password 
 After the password change, Sam Taylor signed in successfully on `AD-WIN10-01`.
 
 The session was checked with Command Prompt.
+
+> Open: Win + R → `cmd`
+> Run on: `AD-WIN10-01` after Sam Taylor signs in
 
 ```cmd
 whoami
@@ -109,13 +126,20 @@ This confirmed that the recovered user account could authenticate to the domain 
 
 The account was then disabled in Active Directory Users and Computers.
 
+> Open: Active Directory Users and Computers
+> Path: ADBox-Lab → Users → Warehouse
+> Action: Right-click Sam Taylor → Disable Account
+
 ![Account Disabled](../screenshots/lab/09-account-recovery/06-client-account-disabled.png)
 
-> Disabling an account blocks new sign-ins while keeping the account object, group membership, and administrative history in Active Directory. This is useful when access needs to be removed without deleting the user.
+Disabling an account blocks new sign-ins while keeping the account object, group membership, and administrative history in Active Directory. This is useful when access needs to be removed without deleting the user.
 
 ## Disabled Account Test
 
 After the account was disabled, sign-in was tested again from `AD-WIN10-01`.
+
+> Open: Windows sign-in screen on `AD-WIN10-01`
+> Action: Try to sign in as `ADBOX\sam.taylor`
 
 Windows blocked the login and showed that the account had been disabled.
 
@@ -127,6 +151,10 @@ This proved that the disabled account state was enforced during domain sign-in.
 
 The account was enabled again in Active Directory Users and Computers.
 
+> Open: Active Directory Users and Computers
+> Path: ADBox-Lab → Users → Warehouse
+> Action: Right-click Sam Taylor → Enable Account
+
 ![Account Enabled](../screenshots/lab/09-account-recovery/08-client-account-enabled.png)
 
 This restored the account for normal authentication.
@@ -136,6 +164,9 @@ This restored the account for normal authentication.
 After the account was enabled again, Sam Taylor signed in successfully on `AD-WIN10-01`.
 
 The restored session was checked with Command Prompt.
+
+> Open: Win + R → `cmd`
+> Run on: `AD-WIN10-01` after Sam Taylor signs in again
 
 ```cmd
 whoami

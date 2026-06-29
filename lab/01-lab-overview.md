@@ -1,8 +1,8 @@
 # Lab Overview
 
-This page sets out the design before the build starts.
+ADBox starts with a simple design problem: one server, two Windows clients, and a home network that needs to behave like a small Windows domain lab.
 
-ADBox uses one Windows Server system and two Windows 10 clients to practise Active Directory support administration in a home-network lab.
+This page explains the shape of the lab before the build begins. It covers the physical layout, domain naming, network plan, and the role each machine plays.
 
 ## Physical Layout
 
@@ -29,7 +29,7 @@ Home Wi-Fi / EE Router
     ├── Domain Client
     ├── Router DHCP
     └── DNS: 192.168.1.50
-````
+```
 
 This layout keeps the lab close to a small networked Windows environment: separate machines, shared local network, one server providing domain services, and clients validating the setup from the workstation side.
 
@@ -37,13 +37,13 @@ This layout keeps the lab close to a small networked Windows environment: separa
 
 The domain plan gives the lab a consistent identity boundary for users, computers, groups, policies, and access testing.
 
-| Area                | Design                                                 |
-| ------------------- | ------------------------------------------------------ |
-| Full Domain Name    | `adbox.local`                                          |
-| NetBIOS Domain Name | `ADBOX`                                                |
-| Domain Controller   | `AD-SRV01`                                             |
-| Server Role         | Writable Domain Controller, DNS Server, Global Catalog |
-| Client Machines     | `AD-WIN10-01`, `AD-WIN10-02`                           |
+Area | Design
+--- | ---
+Full Domain Name | `adbox.local`
+NetBIOS Domain Name | `ADBOX`
+Domain Controller | `AD-SRV01`
+Server Role | Writable Domain Controller, DNS Server, Global Catalog
+Client Machines | `AD-WIN10-01`, `AD-WIN10-02`
 
 The domain supports both common Windows sign-in formats:
 
@@ -55,20 +55,20 @@ ADBOX\username
 username@adbox.local
 ```
 
-These formats are used later when testing domain sign-in, password recovery, Remote Desktop access, and user-based file-share access.
+The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
 
-> The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
+`ADBOX\username` uses the short NetBIOS domain name. `username@adbox.local` uses the full domain name as a User Principal Name. Both formats point back to the same ADBox domain.
 
 ## Network Plan
 
 The virtual machines use VirtualBox Bridged Adapter mode so each VM appears as its own device on the home network.
 
-| Machine       | Addressing                                 | DNS                                  |
-| ------------- | ------------------------------------------ | ------------------------------------ |
-| `AD-SRV01`    | Static IPv4: `192.168.1.50`                | Points to itself: `192.168.1.50`     |
-| `AD-WIN10-01` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
-| `AD-WIN10-02` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
-| EE Router     | Gateway and DHCP provider: `192.168.1.254` | Provides normal home-network access  |
+Machine | Addressing | DNS
+--- | --- | ---
+`AD-SRV01` | Static IPv4: `192.168.1.50` | Points to itself: `192.168.1.50`
+`AD-WIN10-01` | Router DHCP | Points to `AD-SRV01`: `192.168.1.50`
+`AD-WIN10-02` | Router DHCP | Points to `AD-SRV01`: `192.168.1.50`
+EE Router | Gateway and DHCP provider: `192.168.1.254` | Provides normal home-network access
 
 The main design choice is that the router handles client IP addressing, while `AD-SRV01` handles DNS for the lab domain. That gives the clients a stable path to `adbox.local` without turning the home router into part of the Active Directory setup.
 
@@ -95,6 +95,6 @@ The clients are tested from the workstation side because that is where most supp
 
 ## Navigation
 
-| Previous                       | Current      | Next                                            |
-| ------------------------------ | ------------ | ----------------------------------------------- |
-| [Project README](../README.md) | Lab Overview | [02 Environment Setup](02-environment-setup.md) |
+Previous | Current | Next
+--- | --- | ---
+[Project README](../README.md) | Lab Overview | [02 Environment Setup](02-environment-setup.md)

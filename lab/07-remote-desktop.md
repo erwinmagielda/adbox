@@ -1,8 +1,8 @@
 # Remote Desktop
 
-This stage tests Remote Desktop access to a domain-joined Windows 10 workstation.
+Remote Desktop adds a practical support action to the lab: reaching a domain-joined workstation without sitting at its console.
 
-The goal is to confirm that `AD-WIN10-01` can accept remote connections, that an Active Directory group can be added to the local Remote Desktop Users list, and that the session can be checked from inside the remote workstation.
+This stage enables RDP on `AD-WIN10-01`, adds an Active Directory group to the local Remote Desktop access list, connects from another Windows machine, and confirms the session from inside the remote workstation.
 
 ## RDP Target
 
@@ -15,44 +15,55 @@ Domain | `adbox.local`
 NetBIOS Domain | `ADBOX`
 Access Group | `GG_RDP_Allowed`
 Test Account | `ADBOX\Administrator`
+Connection Tool | Remote Desktop Connection
 
 `GG_RDP_Allowed` was created during the directory structure stage as the access group for Remote Desktop testing.
 
->The final connection used `ADBOX\Administrator`, which already has remote access by default. The group setup is still useful because it shows how Remote Desktop access can be delegated to normal domain users through group membership.
+The final connection used `ADBOX\Administrator`, which already has remote access by default. The group setup is still useful because it shows how Remote Desktop access can be delegated to normal domain users through group membership.
 
 ## Remote Desktop Enabled
 
 Remote Desktop was enabled on `AD-WIN10-01` through Windows Settings.
 
-![RDP Settings Enabled](/screenshots/lab/07-remote-desktop/01-rdp-settings-enabled.png)
+> Open: Start → Settings → System → Remote Desktop
+> Shortcut: Win + R → `ms-settings:remotedesktop`
+> Action: Turn on Remote Desktop
+
+![RDP Settings Enabled](../screenshots/lab/07-remote-desktop/01-rdp-settings-enabled.png)
 
 Windows displayed a confirmation prompt before enabling remote access.
 
-![RDP Enable Confirmation](/screenshots/lab/07-remote-desktop/02-rdp-enable-confirmation.png)
+![RDP Enable Confirmation](../screenshots/lab/07-remote-desktop/02-rdp-enable-confirmation.png)
 
 This confirmed that the workstation was configured to accept Remote Desktop connections before the connection test was attempted.
 
->RDP needs to be enabled on the target machine. Joining a workstation to the domain does not automatically mean it will accept remote desktop sessions.
+RDP needs to be enabled on the target machine. Joining a workstation to the domain does not automatically mean it will accept remote desktop sessions.
 
 ## RDP Access Group
 
 The `GG_RDP_Allowed` security group was selected as the access-control group for remote access.
 
-![RDP Group Selected](/screenshots/lab/07-remote-desktop/03-rdp-group-selected.png)
+> Open: Settings → System → Remote Desktop → Select users that can remotely access this PC
+> Action: Add `ADBOX\GG_RDP_Allowed`
+
+![RDP Group Selected](../screenshots/lab/07-remote-desktop/03-rdp-group-selected.png)
 
 The group was then visible in the Remote Desktop Users list on `AD-WIN10-01`.
 
-![RDP Group Added](/screenshots/lab/07-remote-desktop/04-rdp-group-added.png)
+![RDP Group Added](../screenshots/lab/07-remote-desktop/04-rdp-group-added.png)
 
 This means members of `ADBOX\GG_RDP_Allowed` can be granted Remote Desktop access to the workstation.
 
->Adding a domain group to the local Remote Desktop Users list connects Active Directory group membership with local workstation access. A user can be managed centrally in AD, while the workstation still controls who is allowed to connect remotely.
+Adding a domain group to the local Remote Desktop Users list connects Active Directory group membership with local workstation access. A user can be managed centrally in AD, while the workstation still controls who is allowed to connect remotely.
 
 ## Remote Desktop Connection
 
 Remote Desktop Connection was opened from another Windows machine and pointed at the workstation hostname.
 
-![RDP Connection Target](/screenshots/lab/07-remote-desktop/05-rdp-connection-target.png)
+> Open: Win + R → `mstsc`
+> Computer: `AD-WIN10-01`
+
+![RDP Connection Target](../screenshots/lab/07-remote-desktop/05-rdp-connection-target.png)
 
 The connection target was:
 
@@ -62,19 +73,18 @@ AD-WIN10-01
 
 Windows then requested credentials for the remote session.
 
-![RDP Credentials Entered](/screenshots/lab/07-remote-desktop/06-rdp-credentials-entered.png)
+> Credentials: `ADBOX\Administrator`
 
-The test connection used:
-
-```text
-ADBOX\Administrator
-```
+![RDP Credentials Entered](../screenshots/lab/07-remote-desktop/06-rdp-credentials-entered.png)
 
 Using the hostname confirmed that the connection could reach the workstation by name inside the lab environment.
 
 ## Session Validation
 
 After connection, Command Prompt was used inside the RDP session to confirm the account, workstation, session type, and domain network context.
+
+> Open inside the RDP session: Win + R → `cmd`
+> Run on: remote `AD-WIN10-01` session
 
 ```cmd
 whoami
@@ -83,7 +93,7 @@ query user
 ipconfig /all
 ```
 
-![RDP Session Identity](/screenshots/lab/07-remote-desktop/07-rdp-session-identity.png)
+![RDP Session Identity](../screenshots/lab/07-remote-desktop/07-rdp-session-identity.png)
 
 Validation Check | Confirmed Result
 --- | ---
@@ -94,7 +104,7 @@ Domain Context | `ipconfig /all` showed the workstation and `adbox.local` DNS co
 
 This confirmed that the connection reached the domain-joined workstation and opened an interactive Remote Desktop session.
 
->`query user` is useful here because it shows the session name. An `rdp-tcp` session confirms that the user is connected through Remote Desktop, not only using the local VirtualBox console.
+`query user` is useful here because it shows the session name. An `rdp-tcp` session confirms that the user is connected through Remote Desktop, not only using the local VirtualBox console.
 
 ## Session Behaviour
 

@@ -1,8 +1,8 @@
 # Environment Setup
 
-This stage prepares the base network environment before building the Domain Controller.
+Before Active Directory can work, the network has to be boring in the right way: the server needs a fixed address, the clients need to reach it, and DNS queries for the lab domain need to go to the server.
 
-The aim is simple: `AD-SRV01` needs a stable address, the Windows 10 clients need to reach it, and domain-related DNS queries need to go to the server instead of the home router.
+This stage prepares that base environment before `AD-SRV01` is promoted into a Domain Controller.
 
 ## Host Layout
 
@@ -24,15 +24,18 @@ Bridged networking makes each VM appear as its own device on the home network. T
 
 `AD-SRV01` uses Bridged Adapter mode through the host Wi-Fi adapter.
 
-![Server Bridged Adapter](/screenshots/lab/02-environment-setup/01-server-bridged-adapter.png)
+![Server Bridged Adapter](../screenshots/lab/02-environment-setup/01-server-bridged-adapter.png)
 
 The Windows 10 clients use the same bridged networking pattern. One client example is shown below, with the same approach used for both clients.
 
-![Client Bridged Adapter](/screenshots/lab/02-environment-setup/02-client-bridged-adapter.png)
+![Client Bridged Adapter](../screenshots/lab/02-environment-setup/02-client-bridged-adapter.png)
 
 ## IP Addressing
 
 `AD-SRV01` uses a static IPv4 address so the clients have a reliable target for DNS and upcoming Active Directory Domain Services.
+
+> Open: Win + R → `ncpa.cpl` → Right-click network adapter → Properties → Internet Protocol Version 4 (TCP/IPv4) → Properties
+> Server action: Set static IPv4 address, gateway, and preferred DNS.
 
 The Windows 10 clients receive their IPv4 addresses from the EE router through DHCP.
 
@@ -49,17 +52,20 @@ This keeps the setup simple. The router handles normal client addressing, while 
 
 `AD-SRV01` is configured to use itself for DNS.
 
-![Server IP Configuration](/screenshots/lab/02-environment-setup/03-server-ipconfig-dns.png)
+![Server IP Configuration](../screenshots/lab/02-environment-setup/03-server-ipconfig-dns.png)
 
 The Windows 10 clients keep router-provided IP addressing, but their DNS server is manually set to:
 
 ```text
 192.168.1.50
-````
+```
+
+> Open: Win + R → `ncpa.cpl` → Right-click network adapter → Properties → Internet Protocol Version 4 (TCP/IPv4) → Properties
+> Client action: Keep automatic IP addressing, then set preferred DNS server to `192.168.1.50`.
 
 That sends `adbox.local` lookups to `AD-SRV01`.
 
-![Client IP Configuration](/screenshots/lab/02-environment-setup/04-client-ipconfig-dns.png)
+![Client IP Configuration](../screenshots/lab/02-environment-setup/04-client-ipconfig-dns.png)
 
 This DNS path matters because Windows clients need to find the Domain Controller before they can join the domain or authenticate against it.
 
@@ -67,7 +73,10 @@ This DNS path matters because Windows clients need to find the Domain Controller
 
 IPv6 was disabled on the Windows 10 lab adapters after testing showed that the clients were receiving router-provided IPv6 DNS information.
 
-![Client IPv6 Disabled](/screenshots/lab/02-environment-setup/05-client-ipv6-disabled.png)
+> Open: Win + R → `ncpa.cpl` → Right-click network adapter → Properties
+> Action: Untick Internet Protocol Version 6 (TCP/IPv6) on the lab client adapters.
+
+![Client IPv6 Disabled](../screenshots/lab/02-environment-setup/05-client-ipv6-disabled.png)
 
 With IPv6 enabled, the clients were not consistently using the intended DNS path for the lab domain. Disabling IPv6 kept the environment on the controlled IPv4 path through `AD-SRV01`.
 
@@ -75,20 +84,29 @@ The full issue is documented in [DNS IPv6 Conflict](../troubleshooting/01-dns-ip
 
 ## Validation Checks
 
-Before moving into the Domain Controller build, each client needed to prove three things:
+Before moving into the Domain Controller build, each client needed to prove three things: server reachability, lab domain resolution, and full server-name resolution.
 
-| Check                  | Command                         | Expected Result                                   |
-| ---------------------- | ------------------------------- | ------------------------------------------------- |
-| Server Reach           | `ping 192.168.1.50`             | Client can communicate with `AD-SRV01`.           |
-| Lab Domain Resolution  | `nslookup adbox.local`          | Client receives a response through lab DNS.       |
-| Server FQDN Resolution | `nslookup AD-SRV01.adbox.local` | Client can locate the server by full domain name. |
+> Open: Win + R → `cmd`
+> Run on: `AD-WIN10-01` and `AD-WIN10-02`
+
+Check | Command | Expected Result
+--- | --- | ---
+Server Reach | `ping 192.168.1.50` | Client can communicate with `AD-SRV01`.
+Lab Domain Resolution | `nslookup adbox.local` | Client receives a response through lab DNS.
+Server Full Name Resolution | `nslookup AD-SRV01.adbox.local` | Client can locate `AD-SRV01` by full domain name.
+
+`AD-SRV01.adbox.local` is the server Fully Qualified Domain Name (FQDN). It combines the hostname and domain name into one complete DNS name.
+
+```text
+AD-SRV01              = hostname
+adbox.local           = domain
+AD-SRV01.adbox.local  = full DNS name
+```
 
 These checks confirm that the base network and DNS path are ready before installing and promoting Active Directory Domain Services.
 
-> `AD-SRV01.adbox.local` is the server Fully Qualified Domain Name (FQDN) that combines the hostname and domain name into one complete DNS name.
-
 ## Navigation
 
-| Previous                              | Current           | Next                                            |
-| ------------------------------------- | ----------------- | ----------------------------------------------- |
-| [01 Lab Overview](01-lab-overview.md) | Environment Setup | [03 Domain Controller](03-domain-controller.md) |
+Previous | Current | Next
+--- | --- | ---
+[01 Lab Overview](01-lab-overview.md) | Environment Setup | [03 Domain Controller](03-domain-controller.md)
