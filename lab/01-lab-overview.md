@@ -1,22 +1,19 @@
 # Lab Overview
 
-ADBox is a Windows identity and support administration lab for practising Active Directory-based user, device, policy, and remote support workflows.
+ADBox uses one Windows Server system and two Windows 10 clients to practise Active Directory support administration in a home-network lab.
 
-This overview explains the technical design behind the lab: topology, domain layout, network design, core services, evidence model, and troubleshooting approach.
+This page sets out the design before the build starts: where the machines sit, how they communicate, which services each system handles, and why the network is arranged this way.
 
-The lab runs on Oracle VirtualBox (VBox), Windows Server, and Windows 10 clients connected through a shared home network. `AD-SRV01` provides the Domain Controller (DC) role for `adbox.local`, while the Windows 10 clients validate domain join, Group Policy (GP), Remote Desktop Protocol (RDP), and workstation administration from the client side.
+## Physical Layout
 
-## Lab Topology
-
-The lab runs across multiple physical laptops using VBox virtual machines (VMs). All machines connect through the same home Wi-Fi network, allowing the server and clients to communicate as separate devices on one local network.
-
-`AD-SRV01` provides domain and Domain Name System (DNS) services for `adbox.local`. The Windows 10 clients test domain join, domain logon, GP, RDP, and workstation administration.
+The lab is split across multiple physical laptops. Each virtual machine runs locally on its assigned host, while all machines communicate through the same home Wi-Fi network.
 
 ```text
 Home Wi-Fi / EE Router
+│
 ├── AD-SRV01
 │   ├── Windows Server 2022
-│   ├── Writable Domain Controller
+│   ├── Domain Controller
 │   ├── DNS Server
 │   ├── Global Catalog
 │   └── Static IP: 192.168.1.50
@@ -24,119 +21,78 @@ Home Wi-Fi / EE Router
 ├── AD-WIN10-01
 │   ├── Windows 10 Pro
 │   ├── Domain Client
-│   ├── Dynamic IP: 192.168.1.204
+│   ├── Router DHCP
 │   └── DNS: 192.168.1.50
 │
 └── AD-WIN10-02
     ├── Windows 10 Pro
     ├── Domain Client
-    ├── Dynamic IP: 192.168.1.102
+    ├── Router DHCP
     └── DNS: 192.168.1.50
-```
+````
 
-`AD-SRV01` uses a static Internet Protocol version 4 (IPv4) address so clients can reliably reach DNS and domain services. The Windows 10 clients receive their IPv4 addresses from the home router, and their DNS settings point to `192.168.1.50` so they can resolve `adbox.local` through the DC.
+This layout keeps the lab close to a small networked Windows environment: separate machines, shared local network, one server providing domain services, and clients validating the setup from the workstation side.
 
-## Domain Design
+## Domain Plan
 
-The lab uses `adbox.local` as the internal Active Directory domain. This provides the identity boundary where users, computers, groups, Organisational Units (OUs), and GP settings are managed.
+The domain plan gives the lab a consistent identity boundary for users, computers, groups, policies, and access testing.
 
-| Item                | Value         |
-| ------------------- | ------------- |
-| Full Domain Name    | `adbox.local` |
-| NetBIOS Domain Name | `ADBOX`       |
-| DC                  | `AD-SRV01`    |
+| Area                | Design                                                 |
+| ------------------- | ------------------------------------------------------ |
+| Full Domain Name    | `adbox.local`                                          |
+| NetBIOS Domain Name | `ADBOX`                                                |
+| Domain Controller   | `AD-SRV01`                                             |
+| Server Role         | Writable Domain Controller, DNS Server, Global Catalog |
+| Client Machines     | `AD-WIN10-01`, `AD-WIN10-02`                           |
 
-`AD-SRV01` is promoted as the first DC for the domain. Its domain role is writable, meaning users, groups, computers, policies, and other directory objects can be created and managed from this server.
-
-`AD-SRV01` also provides Active Directory-integrated DNS. This allows Windows clients to locate the domain, find the DC, authenticate users, and resolve internal records for `adbox.local`.
-
-The domain supports the NetBIOS logon format:
+The domain supports both common Windows sign-in formats:
 
 ```text
 ADBOX\username
 ```
 
-It also supports the User Principal Name (UPN) format:
-
 ```text
 username@adbox.local
 ```
 
-## Network Design
+These formats are used later when testing domain sign-in, password recovery, Remote Desktop access, and user-based file-share access.
 
-The lab uses VBox Bridged Adapter mode so each VM appears as a separate device on the same home network. This keeps the setup close to a small Windows network while still running the systems as isolated VMs.
+## Network Plan
 
-The server and clients are split across different physical laptops, but they communicate through the same router and wireless network.
+The virtual machines use VirtualBox Bridged Adapter mode so each VM appears as its own device on the home network.
 
-```text
-Home Wi-Fi / EE Router
-├── Physical Laptop: AD-SRV01
-├── Physical Laptop: AD-WIN10-01
-└── Physical Laptop: AD-WIN10-02
-```
+| Machine       | Addressing                                 | DNS                                  |
+| ------------- | ------------------------------------------ | ------------------------------------ |
+| `AD-SRV01`    | Static IPv4: `192.168.1.50`                | Points to itself: `192.168.1.50`     |
+| `AD-WIN10-01` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
+| `AD-WIN10-02` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
+| EE Router     | Gateway and DHCP provider: `192.168.1.254` | Provides normal home-network access  |
 
-| Device        | Addressing                | DNS                                  |
-| ------------- | ------------------------- | ------------------------------------ |
-| `AD-SRV01`    | Static IP: `192.168.1.50` | Points to itself: `192.168.1.50`     |
-| `AD-WIN10-01` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
-| `AD-WIN10-02` | Router DHCP               | Points to `AD-SRV01`: `192.168.1.50` |
+The main design choice is that the router handles client IP addressing, while `AD-SRV01` handles DNS for the lab domain. That gives the clients a stable path to `adbox.local` without turning the home router into part of the Active Directory setup.
 
-The router provides Dynamic Host Configuration Protocol (DHCP) addressing for the clients. `AD-SRV01` stays on a static IPv4 address so the clients have a stable DNS and domain target.
+## Service Roles
 
-Internet Protocol version 6 (IPv6) was disabled on the Windows 10 lab adapters after testing showed that the clients were receiving IPv6 DNS information from the EE router. With IPv6 enabled, `nslookup adbox.local` timed out because the clients were using the wrong DNS path for the lab domain. The full issue is documented in [DNS IPv6 Conflict](../troubleshooting/01-dns-ipv6-conflict.md).
+Each part of the lab has a clear job.
 
-## Core Services
+| Service                          | Handled By                   | Used For                                                              |
+| -------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
+| Active Directory Domain Services | `AD-SRV01`                   | Users, computers, groups, OUs, and domain objects                     |
+| Authentication                   | `AD-SRV01`                   | Domain user and computer sign-in                                      |
+| DNS                              | `AD-SRV01`                   | Resolving `adbox.local` and locating domain services                  |
+| Global Catalog                   | `AD-SRV01`                   | Directory lookups inside the domain                                   |
+| DHCP                             | EE Router                    | Client IP addressing on the home network                              |
+| Client testing                   | `AD-WIN10-01`, `AD-WIN10-02` | Domain join, sign-in, policy, RDP, file access, and account behaviour |
 
-The lab separates responsibilities between the server, router, and Windows clients. This keeps the design easy to test and gives each service a clear purpose.
+## Design Notes
 
-`AD-SRV01` handles identity, authentication, policy, and domain name resolution. The router handles home-network address assignment. The Windows 10 clients validate the environment from the workstation side.
+`AD-SRV01` uses a static IPv4 address because the clients need a reliable DNS and domain target.
 
-| Service | Provider | Role In The Lab |
-|---|---|---|
-| Active Directory Domain Services (AD DS) | `AD-SRV01` | Stores and manages users, computers, groups, OUs, and domain objects. |
-| DC | `AD-SRV01` | Authenticates domain users and computers. |
-| DNS | `AD-SRV01` | Resolves `adbox.local` and allows clients to locate domain services. |
-| Global Catalog | `AD-SRV01` | Supports directory lookups for users, groups, computers, and AD objects. |
-| DHCP | EE Router | Provides IP addresses to the Windows 10 clients on the home network. |
-| RDP | Windows clients and server | Supports remote access testing and support workflows. |
-| GP | `AD-SRV01` | Applies configuration to users and computers through linked policies. |
+The Windows 10 clients use router DHCP for their IP addresses, but their DNS points to `AD-SRV01`. This keeps domain lookup traffic on the lab path.
 
-## Evidence Model
+The clients are tested from the workstation side because that is where most support issues become visible: failed sign-in, missing policy, broken name resolution, blocked access, or incorrect permissions.
 
-Each lab stage records the configuration, validation checks, screenshots, issues found, and confirmed working state. The evidence shows the admin-side configuration and the client-side result where possible.
+## Navigation
 
-The build is dependency-led. Server connectivity supports DNS testing, DNS supports domain join, domain membership supports directory administration, and directory structure supports GP and RDP validation.
-
-```text
-Environment Setup → Domain Controller → Domain Join → Directory Structure → Group Policy → Remote Desktop Access
-```
-
-Screenshots are stored under matching folders so each report can be reviewed alongside its evidence.
-
-```text
-screenshots/lab/
-├── 02-environment-setup/
-├── 03-domain-controller/
-├── 04-domain-join/
-├── 05-directory-structure/
-├── 06-group-policy/
-└── 07-remote-desktop/
-```
-
-## Troubleshooting Approach
-
-Troubleshooting records capture real faults found during the lab build. Each record shows the problem, the checks used to isolate it, and the confirmed fix.
-
-| Section    | Purpose                                                                       |
-| ---------- | ----------------------------------------------------------------------------- |
-| Discovery  | What was observed, what failed, and what evidence showed the issue existed.   |
-| Actions    | Checks, commands, configuration changes, and tests used to isolate the cause. |
-| Resolution | What fixed the issue and how the working state was confirmed.                 |
-
-Current records are listed in [Troubleshooting Records](../troubleshooting/troubleshooting-records.md).
-
-ADBox stays focused on technical administration: connectivity, DNS, domain join, policies, access, recovery, and validation. Ticket intake, user-facing support forms, and service desk workflow are handled separately in the [N3 ticketing lab](https://github.com/erwinmagielda/n3).
-
-## Next Stage
-
-[Stage 2: Environment Setup](02-environment-setup.md), which documents the physical host layout, VBox network mode, IP addressing, DNS configuration, and adapter settings used before building the DC.
+| Previous                       | Current      | Next                                            |
+| ------------------------------ | ------------ | ----------------------------------------------- |
+| [Project README](../README.md) | Lab Overview | [02 Environment Setup](02-environment-setup.md) |
