@@ -28,7 +28,7 @@ The share is hosted on the server and tested from the client while signed in as 
 The access model uses a simple chain from the user account to the shared folder.
 
 ```text
-User Account -> Security Group -> Shared Folder -> Share Permissions -> NTFS Permissions -> Client Test
+User Account → Security Group → Shared Folder → Share Permissions → NTFS Permissions → Client Test
 ```
 
 `Jamie Carter` is a member of `GG_Sales_Users`. The `Sales` folder is shared from `AD-SRV01`, and the Sales group is given folder access through NTFS permissions.
