@@ -57,6 +57,8 @@ username@adbox.local
 
 These formats are used later when testing domain sign-in, password recovery, Remote Desktop access, and user-based file-share access.
 
+>The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
+
 ## Network Plan
 
 The virtual machines use VirtualBox Bridged Adapter mode so each VM appears as its own device on the home network.
@@ -74,14 +76,14 @@ The main design choice is that the router handles client IP addressing, while `A
 
 Each part of the lab has a clear job.
 
-| Service                          | Handled By                   | Used For                                                              |
-| -------------------------------- | ---------------------------- | --------------------------------------------------------------------- |
-| Active Directory Domain Services | `AD-SRV01`                   | Users, computers, groups, OUs, and domain objects                     |
-| Authentication                   | `AD-SRV01`                   | Domain user and computer sign-in                                      |
-| DNS                              | `AD-SRV01`                   | Resolving `adbox.local` and locating domain services                  |
-| Global Catalog                   | `AD-SRV01`                   | Directory lookups inside the domain                                   |
-| DHCP                             | EE Router                    | Client IP addressing on the home network                              |
-| Client testing                   | `AD-WIN10-01`, `AD-WIN10-02` | Domain join, sign-in, policy, RDP, file access, and account behaviour |
+Service | Handled By | Used For
+--- | --- | ---
+Active Directory Domain Services | `AD-SRV01` | Users, computers, groups, OUs, and domain objects.
+Authentication | `AD-SRV01` | Domain user and computer sign-in.
+DNS | `AD-SRV01` | Resolving `adbox.local` and locating domain services.
+Global Catalog | `AD-SRV01` | Directory lookups inside the domain.
+DHCP | EE Router | Client IP addressing on the home network.
+Client Testing | `AD-WIN10-01`, `AD-WIN10-02` | Domain join, sign-in, policy, RDP, file access, and account behaviour.
 
 ## Design Notes
 
