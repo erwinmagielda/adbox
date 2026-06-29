@@ -1,159 +1,214 @@
 # Domain Controller
 
-`AD-SRV01` is built as the first Domain Controller (DC) for the ADBox lab.
+This stage turns `AD-SRV01` from a prepared Windows Server machine into the first Domain Controller for the `adbox.local` domain.
 
-The server starts as a prepared Windows Server 2022 virtual machine with a static Internet Protocol version 4 (IPv4) address, bridged networking, and Domain Name System (DNS) pointed to itself. This stage installs Active Directory Domain Services (AD DS), promotes the server into a new forest, creates the `adbox.local` domain, and validates the domain services after promotion.
+The server already has bridged networking, a static IPv4 address, and DNS pointed to itself from the environment setup stage. This page records the Active Directory Domain Services installation, new forest creation, promotion options, expected wizard warnings, and post-promotion checks.
 
-The completed build provides the identity, authentication, DNS, and directory foundation required before Windows 10 clients can join the domain.
+## Build Steps
 
-## Server Preparation
+The Domain Controller build followed the Server Manager promotion workflow from role installation to post-promotion validation.
 
-Before promotion, `AD-SRV01` had already been prepared with a stable network configuration.
+Step | Action | Covers
+--- | --- | ---
+01 | Confirm Server Base | Static IP, bridged networking, and DNS pointed to `AD-SRV01`.
+02 | Install AD DS | Active Directory Domain Services role added through Server Manager.
+03 | Start Promotion | Post-deployment task used to promote the server.
+04 | Create New Forest | `adbox.local` created as the root domain.
+05 | Set DC Options | DNS and Global Catalog enabled; writable DC selected.
+06 | Review DNS Warning | Expected delegation warning checked and accepted.
+07 | Confirm NetBIOS Name | `ADBOX` detected as the short domain name.
+08 | Keep Default Paths | AD database, logs, and SYSVOL left on default paths.
+09 | Run Prerequisites | Promotion checks passed without blocking errors.
+10 | Restart Into Domain | Server restarted under the `ADBOX` domain context.
+11 | Validate Roles | Server Manager confirmed AD DS and DNS roles.
+12 | Validate Domain | ADUC, DNS, and `nslookup` confirmed the domain was working.
 
-| Setting             | Value                                   |
-| ------------------- | --------------------------------------- |
-| Server Name         | `AD-SRV01`                              |
-| Operating System    | Windows Server 2022 Standard Evaluation |
-| Static IPv4 Address | `192.168.1.50`                          |
-| Preferred DNS       | `192.168.1.50`                          |
-| Planned Domain      | `adbox.local`                           |
-| Planned NetBIOS     | `ADBOX`                                 |
+## Starting Point
 
-These settings are documented in [02-environment-setup.md](02-environment-setup.md).
+`AD-SRV01` was prepared before promotion so the domain had a stable network base.
+
+Setting | Value
+--- | ---
+Server Name | `AD-SRV01`
+Operating System | Windows Server 2022 Standard Evaluation
+Static IPv4 Address | `192.168.1.50`
+Preferred DNS | `192.168.1.50`
+Planned Domain | `adbox.local`
+Planned NetBIOS Name | `ADBOX`
+
+The static IP matters because Windows clients need a reliable DNS and domain target. The server DNS points to itself because the Domain Controller also provides DNS for the lab domain.
+
+These settings are covered in [02 Environment Setup](02-environment-setup.md).
 
 ## AD DS Role Installation
 
-The AD DS role was selected through the Add Roles and Features Wizard. This installs the role required for the server to provide Active Directory domain services.
+The Active Directory Domain Services role was selected through the Add Roles and Features Wizard.
 
 ![Selected Server Roles](/screenshots/lab/03-domain-controller/01-selected-server-roles.png)
 
-After the role installation completed, Server Manager displayed a post-deployment task to promote the server to a DC.
+Installing the role adds the components needed for the server to provide directory services. At this point, the AD DS role is installed, but the server still needs promotion before it can act as a Domain Controller.
+
+After installation, Server Manager showed the post-deployment task to promote the server.
 
 ![Server Promotion Notification](/screenshots/lab/03-domain-controller/02-server-promotion-notification.png)
 
-## Domain Promotion
+This promotion task is what creates the domain and changes the server into a Domain Controller.
 
-`AD-SRV01` was promoted by selecting **Add a new forest** and using `adbox.local` as the root domain name.
+## New Forest Creation
+
+`AD-SRV01` was promoted using the **Add a new forest** option.
+
+The root domain name used was:
+
+```text
+adbox.local
+```
 
 ![New Local Forest](/screenshots/lab/03-domain-controller/03-new-local-forest.png)
 
-This created a new Active Directory forest and domain for the lab.
+This created the first domain in a new Active Directory forest for the lab.
 
 ## Domain Controller Options
 
-The promotion wizard used the Windows Server 2016 forest and domain functional levels.
+The promotion wizard configured `AD-SRV01` as the first Domain Controller for the lab domain.
 
-| Option                             | Setting      |
-| ---------------------------------- | ------------ |
-| DNS Server                         | Enabled      |
-| Global Catalog (GC)                | Enabled      |
-| Read-Only Domain Controller (RODC) | Not selected |
+Option | Setting
+--- | ---
+DNS Server | Enabled
+Global Catalog | Enabled
+Read-Only Domain Controller | Disabled
+Domain Controller Type | Writable Domain Controller
 
 ![Domain Controller Options](/screenshots/lab/03-domain-controller/04-domain-controller-options.png)
 
-`AD-SRV01` was configured as a writable DC with DNS and GC enabled. The Directory Services Restore Mode (DSRM) password was also set during this stage, but the password is not documented in the repository.
+DNS was enabled because the clients need to resolve `adbox.local` and locate domain services. Global Catalog was enabled because this is the first Domain Controller in the domain.
+
+The Directory Services Restore Mode password was set during promotion. The password is not stored in the repository.
 
 ## DNS Delegation Warning
 
-The wizard displayed a DNS delegation warning because there was no authoritative parent DNS zone for `adbox.local`.
+The wizard displayed a DNS delegation warning.
 
 ![DNS Delegation Warning](/screenshots/lab/03-domain-controller/05-dns-delegation-warning.png)
 
-This warning was expected because `adbox.local` is an internal lab domain. No external parent DNS zone is being used for delegation.
+>DNS delegation is used when a parent DNS zone points a child domain to the DNS servers responsible for that child domain. The warning appeared because `adbox.local` is an internal lab domain and there is no parent DNS zone configured to delegate it to `AD-SRV01`.
 
-## NetBIOS Domain Name
+The warning did not block promotion because the Windows clients are configured to use `AD-SRV01` directly for `adbox.local` DNS lookups.
 
-The wizard detected the NetBIOS domain name as `ADBOX`.
+## NetBIOS Name
+
+The wizard detected the NetBIOS domain name as:
+
+```text
+ADBOX
+```
 
 ![NetBIOS Domain Detection](/screenshots/lab/03-domain-controller/06-netbios-domain-detection.png)
 
-This allows the domain to support the legacy-compatible logon format:
+This allows domain accounts to sign in using the legacy-compatible format:
 
 ```text
 ADBOX\username
 ```
 
-The domain also supports the User Principal Name (UPN) format:
+The domain also supports the User Principal Name format:
 
 ```text
 username@adbox.local
 ```
 
+Both formats are used later in the lab when testing domain sign-in, account recovery, Remote Desktop access, and file-share access.
+
 ## Directory Paths
 
 The default AD DS database, log, and SYSVOL paths were kept.
 
-| Path Type        | Location            |
-| ---------------- | ------------------- |
-| Database Folder  | `C:\Windows\NTDS`   |
-| Log Files Folder | `C:\Windows\NTDS`   |
-| SYSVOL Folder    | `C:\Windows\SYSVOL` |
+Path Type | Location
+--- | ---
+Database Folder | `C:\Windows\NTDS`
+Log Files Folder | `C:\Windows\NTDS`
+SYSVOL Folder | `C:\Windows\SYSVOL`
 
 ![Controller Default Paths](/screenshots/lab/03-domain-controller/07-controller-default-paths.png)
 
-The default paths are suitable for this lab because it uses a single DC and does not require separate storage volumes.
+>`NTDS` is the folder used by Active Directory Domain Services for the directory database and related log files. The main database file is `NTDS.dit`, which stores domain objects such as users, computers, groups, OUs, and directory configuration.
+
+>`SYSVOL` is a shared folder used by Domain Controllers to store domain-wide files such as Group Policy content and logon scripts. Clients need access to SYSVOL so they can read policy files and domain scripts during normal domain operation.
+
+The default paths are suitable for this single-server lab because `AD-SRV01` is the only Domain Controller and the environment does not need separate storage volumes.
 
 ## Prerequisites Check
 
-The prerequisites check passed before installation.
+The prerequisites check passed before promotion.
 
 ![Prerequisites Check Success](/screenshots/lab/03-domain-controller/08-prerequisites-check-success.png)
 
-The wizard displayed warnings about DNS delegation and older cryptography compatibility, but neither warning blocked promotion.
+The wizard showed warnings, but there were no blocking errors. After the check passed, the promotion completed and the server restarted.
 
 ## Post-Promotion Sign-In
 
-After promotion, the server restarted and the sign-in context changed to the `ADBOX` domain.
+After restart, the sign-in context showed the `ADBOX` domain.
 
 ![Post Promotion Login](/screenshots/lab/03-domain-controller/09-post-promotion-login.png)
 
-This shows that `AD-SRV01` was no longer operating only as a standalone server. It had become part of the newly created `adbox.local` domain.
+This confirmed that the server was operating inside the new `adbox.local` domain.
 
 ## Server Manager Validation
 
-Server Manager confirmed the server identity and domain membership.
+Server Manager confirmed the domain membership and installed roles.
 
 ![Manager Domain Confirmed](/screenshots/lab/03-domain-controller/10-manager-domain-confirmed.png)
 
-The view confirms:
+Check | Result
+--- | ---
+Computer Name | `AD-SRV01`
+Domain | `adbox.local`
+Server IP | `192.168.1.50`
+Roles Visible | AD DS and DNS
 
-| Item          | Value          |
-| ------------- | -------------- |
-| Computer Name | `AD-SRV01`     |
-| Domain        | `adbox.local`  |
-| Server IP     | `192.168.1.50` |
-| Roles Visible | AD DS and DNS  |
+This confirmed that the server identity, domain membership, and core roles were visible after promotion.
 
-## DNS Role Validation
+## DNS Validation
 
-The DNS role was visible in Server Manager, with `AD-SRV01` listed as the DNS server using the lab IPv4 address `192.168.1.50`.
+The DNS role was visible in Server Manager, with `AD-SRV01` listed as the DNS server for the lab address.
 
 ![DNS ADBox Zone](/screenshots/lab/03-domain-controller/11-dns-adbox-zone.png)
 
-This confirms that the DNS role was available after promotion.
+A server-side lookup for the lab domain also returned the expected result.
 
-## Active Directory Validation
-
-Active Directory Users and Computers (ADUC) confirmed that the `adbox.local` domain was available and that `AD-SRV01` was listed under Domain Controllers.
-
-![ADUC Domain View](/screenshots/lab/03-domain-controller/12-aduc-domain-view.png)
-
-The view also shows `AD-SRV01` as a GC, confirming that the server provides Global Catalog functionality.
-
-## Name Resolution Validation
-
-A server-side DNS lookup for `adbox.local` returned records for the domain, including the lab IPv4 address `192.168.1.50`.
+```text
+nslookup adbox.local
+```
 
 ![Server Nslookup Success](/screenshots/lab/03-domain-controller/13-server-nslookup-success.png)
 
-This confirms that `AD-SRV01` can resolve the lab domain after promotion.
+This confirmed that `AD-SRV01` could resolve the lab domain after promotion.
 
-## Summary
+## Active Directory Validation
 
-`AD-SRV01` was successfully promoted as the first DC for the `adbox.local` forest and domain. The server now provides AD DS, DNS, and GC services, with the NetBIOS domain name `ADBOX`.
+Active Directory Users and Computers showed the `adbox.local` domain.
 
-The Active Directory foundation is ready for the next stage: joining Windows 10 clients to the domain.
+![ADUC Domain View](/screenshots/lab/03-domain-controller/12-aduc-domain-view.png)
 
-## Next Stage
+`AD-SRV01` was listed under Domain Controllers, confirming that the server object exists in the expected domain location.
 
-[Stage 4: Domain Join](04-domain-join.md), which documents joining the Windows 10 clients to `adbox.local` and confirming the computer objects in ADUC.
+## Result
+
+`AD-SRV01` was promoted as the first Domain Controller for `adbox.local`.
+
+The server now provides:
+
+Service | Purpose
+--- | ---
+Active Directory Domain Services | Stores and manages users, computers, groups, OUs, and domain objects.
+Lab Domain DNS | Resolves `adbox.local` and helps clients locate domain services.
+Global Catalog | Supports directory lookups inside the domain.
+Domain Authentication | Allows future Windows 10 clients to authenticate domain users and computer accounts.
+
+The next stage tests whether the Windows 10 clients can use this domain and DNS setup to join `adbox.local`.
+
+## Navigation
+
+Previous | Current | Next
+--- | --- | ---
+[02 Environment Setup](02-environment-setup.md) | Domain Controller | [04 Domain Join](04-domain-join.md)
