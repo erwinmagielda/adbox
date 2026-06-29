@@ -1,8 +1,8 @@
 # Lab Overview
 
-ADBox uses one Windows Server system and two Windows 10 clients to practise Active Directory support administration in a home-network lab.
+This page sets out the design before the build starts.
 
-This page sets out the design before the build starts: where the machines sit, how they communicate, which services each system handles, and why the network is arranged this way.
+ADBox uses one Windows Server system and two Windows 10 clients to practise Active Directory support administration in a home-network lab.
 
 ## Physical Layout
 
