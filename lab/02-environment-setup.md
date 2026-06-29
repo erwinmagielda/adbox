@@ -85,6 +85,8 @@ Before moving into the Domain Controller build, each client needed to prove thre
 
 These checks confirm that the base network and DNS path are ready before installing and promoting Active Directory Domain Services.
 
+>`AD-SRV01.adbox.local` is the server Fully Qualified Domain Name (FQDN). It combines the hostname and domain name into one complete DNS name.
+
 ## Navigation
 
 | Previous                              | Current           | Next                                            |
