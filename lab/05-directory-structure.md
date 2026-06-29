@@ -1,10 +1,22 @@
 # Directory Structure
 
-The joined clients, users, and groups are organised inside a dedicated `ADBox-Lab` Organisational Unit (OU).
+This stage organises the joined Windows 10 clients, department users, and security groups inside Active Directory.
 
-This stage moves the lab away from the default Active Directory containers and into a structure that can support real administration: workstation placement, department users, security groups, group membership, Group Policy (GP), Remote Desktop Protocol (RDP), printer mapping, account recovery, and PowerShell administration.
+The aim is to move the lab away from default locations and into a structure that can support practical administration: workstation targeting, department users, access groups, Group Policy, Remote Desktop access, file sharing, account recovery, and PowerShell checks.
 
-The main point of this stage is to separate **where objects are stored** from **how access is controlled**. OUs organise objects and support policy targeting. Groups are used for permissions, access control, and membership-based administration.
+## Build Steps
+
+The directory structure was built after both Windows 10 clients joined `adbox.local`.
+
+Step | Action | Covers
+--- | --- | ---
+01 | Review Default Containers | Check the starting Active Directory locations created with the domain.
+02 | Create Lab OU Structure | Add `ADBox-Lab` with separate areas for users, computers, groups, and service accounts.
+03 | Move Workstations | Move `AD-WIN10-01` and `AD-WIN10-02` into the `Workstations` OU.
+04 | Create Department Users | Add example IT, Sales, and Warehouse users.
+05 | Create Security Groups | Add Global Security groups for department membership and RDP access.
+06 | Set Group Membership | Add users to the correct groups and correct an intentional membership mistake.
+07 | Validate Objects | Confirm users and groups can be found in Active Directory Users and Computers.
 
 ## Default Containers
 
@@ -12,18 +24,18 @@ After the domain was created, Active Directory created several default container
 
 ![Default Containers Listed](/screenshots/lab/05-directory-structure/01-default-containers-listed.png)
 
-| Default Location            | Purpose                                                           |
-|-----------------------------|-------------------------------------------------------------------|
-| `Builtin`                   | Stores built-in administrative and security groups.               |
-| `Computers`                 | Default container where newly joined computer objects are placed. |
-| `Domain Controllers`        | Default OU for Domain Controllers.                                |
-| `ForeignSecurityPrincipals` | Used for identities from trusted external domains or forests.     |
-| `Managed Service Accounts`  | Stores managed service account objects.                           |
-| `Users`                     | Default container for built-in users and groups.                  |
+Default Location | Purpose
+--- | ---
+`Builtin` | Stores built-in administrative and security groups.
+`Computers` | Default container where newly joined computer objects are placed.
+`Domain Controllers` | Default OU for Domain Controllers.
+`ForeignSecurityPrincipals` | Used for identities from trusted external domains or forests.
+`Managed Service Accounts` | Stores managed service account objects.
+`Users` | Default container for built-in users and groups.
 
-The default `Computers` and `Users` locations are containers, not the main working structure for this lab. A separate `ADBox-Lab` OU was created so lab users, computers, and groups can be organised clearly and targeted later through policies and administration tasks.
+> Containers can store objects, but normal Group Policy targeting is based around OUs. For this lab, the working users, groups, and workstations were placed under a dedicated OU structure so later stages can target them cleanly.
 
-`AD-SRV01` was not moved from the default `Domain Controllers` OU. Domain Controllers are placed there automatically and receive Domain Controller-specific policies, so the server object was left in its default administrative location.
+`AD-SRV01` was left in the default `Domain Controllers` OU. Domain Controllers are placed there automatically and receive Domain Controller-specific policies, so the server object was not moved into the lab workstation structure.
 
 ## OU Structure
 
@@ -35,25 +47,34 @@ The final OU structure was:
 
 ```text
 adbox.local
+│
 └── ADBox-Lab
+    │
     ├── Users
     │   ├── IT
     │   ├── Sales
     │   └── Warehouse
+    │
     ├── Computers
     │   ├── Workstations
     │   └── Servers
+    │
     ├── Groups
     │   ├── Security
     │   └── Distribution
     └── Service-Accounts
 ```
 
-The `Users` OU stores human user accounts, separated by department. The `Computers` OU stores workstation and server objects. The `Groups` OU stores group objects used for access control and later administration scenarios.
+Area | Purpose
+--- | ---
+`Users` | Stores human user accounts separated by department.
+`Computers` | Stores workstation and server computer objects.
+`Groups` | Stores group objects used for access control and administration.
+`Service-Accounts` | Reserved for future service, automation, or scheduled task accounts.
 
-The `Distribution` OU was created to show where mail-related distribution groups could be separated in a larger environment. No distribution groups were created at this stage because ADBox is focused on access control, workstation administration, GP, RDP, and support workflows.
+The `Distribution` OU was included as a separate location for mail-related distribution groups. No distribution groups were created in this stage because the lab is focused on access control and workstation administration.
 
-The `Service-Accounts` OU was created as a reserved location for future service or automation accounts, such as accounts used by scripts, scheduled tasks, monitoring tools, or managed services. No service accounts were created at this stage.
+No service accounts were created in this stage. The OU was added so the structure has a clear place for future service or automation accounts.
 
 ## Computer Placement
 
@@ -71,29 +92,31 @@ After the move, both Windows 10 client objects were visible inside the `Workstat
 
 ![Workstations Objects Moved](/screenshots/lab/05-directory-structure/04-workstations-objects-moved.png)
 
-This prepares the clients for workstation-specific GP settings later in the lab. The Domain Controller object was left in the default `Domain Controllers` OU because it should receive Domain Controller-specific policies, not workstation policies.
+This prepares the clients for workstation-specific Group Policy settings later in the lab.
 
 ## User Accounts
 
 Three department users were created in the `Users` OU structure.
 
-| Department OU | User         | User Principal Name (UPN)  |
-|---------------|--------------|----------------------------|
-| `IT`          | Alex Morgan  | `alex.morgan@adbox.local`  |
-| `Sales`       | Jamie Carter | `jamie.carter@adbox.local` |
-| `Warehouse`   | Sam Taylor   | `sam.taylor@adbox.local`   |
+Department OU | User | User Principal Name
+--- | --- | ---
+`IT` | Alex Morgan | `alex.morgan@adbox.local`
+`Sales` | Jamie Carter | `jamie.carter@adbox.local`
+`Warehouse` | Sam Taylor | `sam.taylor@adbox.local`
+
+> A User Principal Name is the email-style sign-in name for a domain user. In this lab, the UPN format is `username@adbox.local`.
 
 The example below shows the creation of the IT user account for Alex Morgan.
 
 ![User Creation Dialog](/screenshots/lab/05-directory-structure/05-user-creation-dialog.png)
 
-During account creation, the password option **User must change password at next logon** was selected.
+During account creation, **User must change password at next logon** was selected.
 
 ![Password Policy Selected](/screenshots/lab/05-directory-structure/06-password-policy-selected.png)
 
-This supports a normal onboarding pattern: the administrator creates the account with a temporary password, and the user is forced to set their own password at first sign-in.
+This matches a normal onboarding pattern: the administrator sets a temporary password, and the user is forced to create their own password at first sign-in.
 
-The created user object was confirmed in Active Directory Users and Computers (ADUC).
+The created user object was confirmed in Active Directory Users and Computers.
 
 ![User Object Created](/screenshots/lab/05-directory-structure/07-user-object-created.png)
 
@@ -101,19 +124,19 @@ The ADUC Find tool was also used to confirm that all three user accounts could b
 
 ![Users Search Results](/screenshots/lab/05-directory-structure/08-users-search-results.png)
 
-## Group Type And Scope
+## Group Type and Scope
 
-Active Directory groups have a type and a scope. The type controls what the group is used for, while the scope controls where the group can be used.
+Active Directory groups have a type and a scope. The type controls what the group is used for. The scope controls where the group can be used.
 
-| Option | Meaning | Lab Decision |
-|---|---|---|
-| Security | Used to assign permissions and access to resources. | Used because the lab groups support access-control and administration scenarios. |
-| Distribution | Used for email distribution lists, not normal access control. | Not used at this stage because mail handling is outside the current ADBox scope. |
-| Global | Used to group users from the same domain. | Used because all ADBox users are in the single `adbox.local` domain. |
-| Domain Local | Often used to assign permissions to resources inside the domain. | Not used at this stage because resource permission mapping will come later. |
-| Universal | Used across multiple domains in a forest. | Not used because ADBox is a single-domain forest. |
+Option | Meaning | Lab Decision
+--- | --- | ---
+Security | Used to assign permissions and access to resources. | Used for access-control and administration scenarios.
+Distribution | Used for email distribution lists. | Not used because mail handling is outside this stage.
+Global | Used to group users from the same domain. | Used because all ADBox users are in `adbox.local`.
+Domain Local | Often used to assign permissions to resources inside the domain. | Not used at this stage because resource permissions are tested later.
+Universal | Used across multiple domains in a forest. | Not used because ADBox is a single-domain forest.
 
-The lab groups were created as **Global Security** groups. This fits the current design because the users and resources are all inside `adbox.local`, and the groups are intended for administration and access-control scenarios.
+The lab groups were created as Global Security groups. That fits the current design because the users and resources are all inside one domain.
 
 ## Security Groups
 
@@ -129,27 +152,27 @@ The group creation dialog shows `GG_IT_Users` being created as a Global Security
 
 The following security groups were created:
 
-| Group                | Purpose                                                 |
-|----------------------|---------------------------------------------------------|
-| `GG_IT_Users`        | Groups IT department users.                             |
-| `GG_Sales_Users`     | Groups Sales department users.                          |
-| `GG_Warehouse_Users` | Groups Warehouse department users.                      |
-| `GG_RDP_Allowed`     | Prepares an access-control group for later RDP testing. |
+Group | Purpose
+--- | ---
+`GG_IT_Users` | Groups IT department users.
+`GG_Sales_Users` | Groups Sales department users.
+`GG_Warehouse_Users` | Groups Warehouse department users.
+`GG_RDP_Allowed` | Prepares an access-control group for later Remote Desktop testing.
 
 ![Security Groups Listed](/screenshots/lab/05-directory-structure/10-security-groups-listed.png)
 
-The `GG_` prefix identifies these as Global Groups and keeps the group purpose readable.
+> The `GG_` prefix is used here to mark these as Global Groups. It keeps the group type visible in the object name during later access-control testing.
 
 ## Group Membership
 
 Users were added to security groups to connect department users with access-control objects.
 
-| Group                | Final Member |
-|----------------------|--------------|
-| `GG_IT_Users`        | Alex Morgan  |
-| `GG_Sales_Users`     | Jamie Carter |
-| `GG_Warehouse_Users` | Sam Taylor   |
-| `GG_RDP_Allowed`     | Alex Morgan  |
+Group | Final Member
+--- | ---
+`GG_IT_Users` | Alex Morgan
+`GG_Sales_Users` | Jamie Carter
+`GG_Warehouse_Users` | Sam Taylor
+`GG_RDP_Allowed` | Alex Morgan
 
 During testing, two users were added to `GG_IT_Users` at the same time to confirm that multiple objects can be selected and resolved together.
 
@@ -159,20 +182,28 @@ One incorrect member was then removed from `GG_IT_Users` to confirm that group m
 
 ![Group Member Removed](/screenshots/lab/05-directory-structure/12-group-member-removed.png)
 
-This demonstrates a common administration task: add users to a group, identify incorrect membership, remove the incorrect user, and confirm the final state.
+This is a normal administration task: add users to a group, identify incorrect membership, remove the wrong user, and confirm the final state.
 
 The ADUC Find tool was also used to validate the created security groups.
 
 ![Groups Search Results](/screenshots/lab/05-directory-structure/13-groups-search-results.png)
 
-## Summary
+## Result
 
-The ADBox directory now separates users, computers, groups, and future service accounts inside a dedicated `ADBox-Lab` OU.
+The ADBox directory structure now separates users, computers, groups, and reserved service-account space inside a dedicated `ADBox-Lab` OU.
 
-The Windows 10 clients were moved from the default `Computers` container into the `Workstations` OU. Department users were created under separate department OUs, and Global Security groups were created to support later access-control scenarios.
+Directory Area | Result
+--- | ---
+Workstations | `AD-WIN10-01` and `AD-WIN10-02` moved into the `Workstations` OU.
+Department Users | IT, Sales, and Warehouse users created under separate OUs.
+Security Groups | Global Security groups created for department membership and RDP preparation.
+Group Membership | Users added to their intended groups and incorrect membership corrected.
+Policy Readiness | Workstations are now placed where a workstation GPO can target them.
 
-This structure provides the foundation for applying GP to users and computers in a controlled way.
+This structure provides the foundation for applying Group Policy and testing access-control tasks in later stages.
 
-## Next Stage
+## Navigation
 
-[Stage 6: Group Policy](06-group-policy.md), which applies and validates policy settings against the organised users, computers, and OUs.
+Previous | Current | Next
+--- | --- | ---
+[04 Domain Join](04-domain-join.md) | Directory Structure | [06 Group Policy](06-group-policy.md)
