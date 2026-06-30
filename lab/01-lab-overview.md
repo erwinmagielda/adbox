@@ -90,6 +90,6 @@ The clients are tested from the workstation side because that is where most supp
 
 ## Navigation
 
-Previous | Current | Next
---- | --- | ---
-[Project README](../README.md) | 01 Lab Overview | [02 Environment Setup](02-environment-setup.md)
+| Previous                     | Current         | Next                                            |
+| ---------------------------- | --------------- | ----------------------------------------------- |
+[Project README](../README.md) | 01 Lab Overview | [02 Environment Setup](02-environment-setup.md) |
