@@ -22,15 +22,15 @@ The join process was tested with two Windows 10 clients.
 
 The same process was used on both Windows 10 clients.
 
-| Step | Action | Covers |
-|---|---|---|
-| 01 | Confirm Client DNS | Client hostname, DNS server, server reachability, lab domain lookup, and full server-name lookup. |
-| 02 | Open Join Dialog | Windows System Properties used to reach the domain join controls. |
-| 03 | Enter Domain Name | `adbox.local` entered as the target domain. |
-| 04 | Authenticate Join | Domain administrator credentials used to approve the join. |
-| 05 | Restart Client | Windows restarted to apply domain membership. |
-| 06 | Domain Account Sign In | Domain sign-in tested after restart. |
-| 07 | Confirm Computer Object | Joined workstation checked in Active Directory Users and Computers. |
+| Step | Action                  | Covers                                                                                            |
+| ---- | ----------------------- | ------------------------------------------------------------------------------------------------- |
+| 01   | Confirm Client DNS      | Client hostname, DNS server, server reachability, lab domain lookup, and full server-name lookup. |
+| 02   | Open Join Dialog        | Windows System Properties used to reach the domain join controls.                                 |
+| 03   | Enter Domain Name       | `adbox.local` entered as the target domain.                                                       |
+| 04   | Authenticate Join       | Domain administrator credentials used to approve the join.                                        |
+| 05   | Restart Client          | Windows restarted to apply domain membership.                                                     |
+| 06   | Domain Account Sign In  | Domain sign-in tested after restart.                                                              |
+| 07   | Confirm Computer Object | Joined workstation checked in Active Directory Users and Computers.                               |
 
 ## Pre-Join Checks
 
