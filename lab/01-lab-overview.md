@@ -45,19 +45,14 @@ Domain Controller | `AD-SRV01`
 Server Role | Writable Domain Controller, DNS Server, Global Catalog
 Client Machines | `AD-WIN10-01`, `AD-WIN10-02`
 
-The domain supports both common Windows sign-in formats:
+The NetBIOS domain name is the short Windows name for the domain. In this lab, `ADBOX` is the short name used for the full domain `adbox.local`.
 
-```text
-ADBOX\username
-```
+Both names can be used during sign-in, but they appear in different formats:
 
-```text
-username@adbox.local
-```
-
-The NetBIOS domain name is the short Windows domain name. In this lab, `ADBOX` is the short name for `adbox.local`.
-
-`ADBOX\username` uses the short NetBIOS domain name. `username@adbox.local` uses the full domain name as a User Principal Name. Both formats point back to the same ADBox domain.
+| Format              | Example                  | Meaning                                          |
+| ------------------- | ------------------------ | ------------------------------------------------ |
+| NetBIOS logon name  | `ADBOX\sam.taylor`       | Uses the short Windows domain name.              |
+| User Principal Name | `sam.taylor@adbox.local` | Uses the full domain name in email-style format. |
 
 ## Network Plan
 
