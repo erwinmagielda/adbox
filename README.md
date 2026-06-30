@@ -6,6 +6,12 @@ I built it to practise the kind of support work I expect to meet in IT roles: pr
 
 The lab runs on Oracle VirtualBox virtual machines across multiple physical laptops connected through the same home network. `AD-SRV01` provides the Domain Controller and DNS role for `adbox.local`. Two Windows 10 clients are used to test domain join, policy application, remote access, file sharing, and user sign-in behaviour.
 
+## Service Desk
+
+ADBox focuses on the technical administration side of Windows support: Active Directory, DNS, Group Policy, Remote Desktop, file sharing, account recovery, and PowerShell checks.
+
+The ticketing and service desk workflow for these scenarios is handled in [N3](https://github.com/erwinmagielda/n3), where ADBox tasks are turned into Jira Service Management tickets with user impact, priority, troubleshooting notes, resolution summaries, and handover records.
+
 ## Lab Coverage
 
 The reports below follow the lab from the first network checks through to practical support tasks such as file access, account recovery, and PowerShell review.
