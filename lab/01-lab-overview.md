@@ -37,13 +37,13 @@ This layout keeps the lab close to a small networked Windows environment: separa
 
 The domain plan gives the lab a consistent identity boundary for users, computers, groups, policies, and access testing.
 
-Area | Design
---- | ---
-Full Domain Name | `adbox.local`
-NetBIOS Domain Name | `ADBOX`
-Domain Controller | `AD-SRV01`
-Server Role | Writable Domain Controller, DNS Server, Global Catalog
-Client Machines | `AD-WIN10-01`, `AD-WIN10-02`
+| Area                  | Design                                                 |
+| --------------------- | ------------------------------------------------------ |
+| Full Domain Name      | `adbox.local`                                          |
+| NetBIOS Domain Name   | `ADBOX`                                                |
+| Domain Controller     | `AD-SRV01`                                             |
+| Server Role           | Writable Domain Controller, DNS Server, Global Catalog |
+| Client Machines       | `AD-WIN10-01`, `AD-WIN10-02`                           |
 
 The NetBIOS domain name is the short Windows name for the domain. In this lab, `ADBOX` is the short name used for the full domain `adbox.local`.
 
@@ -58,12 +58,12 @@ Both names can be used during sign-in, but they appear in different formats:
 
 The virtual machines use VirtualBox Bridged Adapter mode so each VM appears as its own device on the home network.
 
-Machine | Addressing | DNS
---- | --- | ---
-`AD-SRV01` | Static IPv4: `192.168.1.50` | Points to itself: `192.168.1.50`
-`AD-WIN10-01` | Router DHCP | Points to `AD-SRV01`: `192.168.1.50`
-`AD-WIN10-02` | Router DHCP | Points to `AD-SRV01`: `192.168.1.50`
-EE Router | Gateway and DHCP provider: `192.168.1.254` | Provides normal home-network access
+| Machine       | Addressing                                 | DNS                                  |
+| ------------- | ------------------------------------------ | ------------------------------------ |
+| `AD-SRV01`    | Static IPv4: `192.168.1.50`                | Points to itself: `192.168.1.50`     |
+| `AD-WIN10-01` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
+| `AD-WIN10-02` | Router DHCP                                | Points to `AD-SRV01`: `192.168.1.50` |
+| EE Router     | Gateway and DHCP provider: `192.168.1.254` | Provides normal home-network access  |
 
 The main design choice is that the router handles client IP addressing, while `AD-SRV01` handles DNS for the lab domain. That gives the clients a stable path to `adbox.local` without turning the home router into part of the Active Directory setup.
 
@@ -71,14 +71,14 @@ The main design choice is that the router handles client IP addressing, while `A
 
 Each part of the lab has a clear job.
 
-Service | Handled By | Used For
---- | --- | ---
-Active Directory Domain Services | `AD-SRV01` | Users, computers, groups, OUs, and domain objects.
-Authentication | `AD-SRV01` | Domain user and computer sign-in.
-DNS | `AD-SRV01` | Resolving `adbox.local` and locating domain services.
-Global Catalog | `AD-SRV01` | Directory lookups inside the domain.
-DHCP | EE Router | Client IP addressing on the home network.
-Client Testing | `AD-WIN10-01`, `AD-WIN10-02` | Domain join, sign-in, policy, RDP, file access, and account behaviour.
+| Service                          | Handled By                   | Used For                                                               |
+| -------------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| Active Directory Domain Services | `AD-SRV01`                   | Users, computers, groups, OUs, and domain objects.                     |
+| Authentication                   | `AD-SRV01`                   | Domain user and computer sign-in.                                      |
+| DNS                              | `AD-SRV01`                   | Resolving `adbox.local` and locating domain services.                  |
+| Global Catalog                   | `AD-SRV01`                   | Directory lookups inside the domain.                                   |
+| DHCP                             | EE Router                    | Client IP addressing on the home network.                              |
+| Client Testing                   | `AD-WIN10-01`, `AD-WIN10-02` | Domain join, sign-in, policy, RDP, file access, and account behaviour. |
 
 ## Design Notes
 
