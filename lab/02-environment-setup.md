@@ -163,6 +163,6 @@ These checks confirm that the base network and DNS path are ready before install
 
 ## Navigation
 
-| Previous                              | Current           | Next                                            |
-| ------------------------------------- | ----------------- | ----------------------------------------------- |
+| Previous                              | Current              | Next                                            |
+| ------------------------------------- | ---------------------| ----------------------------------------------- |
 | [01 Lab Overview](01-lab-overview.md) | 02 Environment Setup | [03 Domain Controller](03-domain-controller.md) |
